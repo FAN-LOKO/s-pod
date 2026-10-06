@@ -1,0 +1,3287 @@
+/* ==========================================================================
+   EAP Care — визуальный прототип, первый этап.
+   Только: header, hero, блок C, блок D. Без внешних ресурсов, системный шрифт.
+   ========================================================================== */
+
+:root{
+  /* Основа */
+  --graphite:        #14181d;
+  --graphite-soft:   #39424c;
+  --muted:           #5c6771;
+
+  /* Сталь */
+  --steel-900:       #0d1219;
+  --steel-800:       #131b24;
+  --steel-700:       #1b2733;
+  --steel-500:       #3d5a73;
+  --steel-400:       #5b7e9b;
+
+  /* Светлая нейтральная основа */
+  --neutral-bg:      #f4f6f8;
+  --neutral-bg-alt:  #eceff2;
+  --line:            #d9dfe5;
+  --line-soft:       #e6eaee;
+
+  /* Ограниченный янтарный акцент */
+  --amber:           #a86400;
+  --amber-light:     #e8a33d;
+
+  /* Сатинированная сталь */
+  --steel-top:        #f7f9fb;
+  --steel-mid:        #e4e9ee;
+  --steel-low:        #cbd2d9;
+  --steel-bottom:     #bfc7cf;
+
+  /* Шапка */
+  --header-bg:        #fafaf8;
+  --steel-line:       #d9dfe5;
+
+  /* Прямые углы интерфейса. Токен используют только согласованные
+     компоненты: .btn с декоративными слоями и .manifesto__item.
+     Округлые формы бургера, «Наверх» и концентрических деталей
+     заданы собственными значениями и этим токеном не затронуты. */
+  --radius:          0px;
+  --container:       1240px;
+  --header-h:        80px;
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+html{
+  -webkit-text-size-adjust:100%;
+  scroll-behavior:auto;
+  scroll-padding-top:calc(var(--header-h) + 16px);
+}
+
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans",sans-serif;
+  font-size:16px;
+  line-height:1.6;
+  color:var(--graphite);
+  background:var(--neutral-bg);
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+  text-rendering:optimizeLegibility;
+}
+
+img{max-width:100%;display:block}
+
+a{color:inherit}
+
+.container{
+  width:100%;
+  max-width:var(--container);
+  margin-inline:auto;
+  padding-inline:24px;
+}
+
+/* ---------- Видимый фокус для всей страницы ---------- */
+:focus-visible{
+  outline:2px solid var(--amber);
+  outline-offset:3px;
+  border-radius:4px;
+}
+.site-header :focus-visible{outline-color:var(--graphite)}
+.hero :focus-visible{outline-color:var(--amber-light)}
+
+.skip-link{
+  position:absolute;
+  top:-100px;
+  left:16px;
+  z-index:100;
+  padding:12px 18px;
+  min-height:44px;
+  display:inline-flex;
+  align-items:center;
+  background:var(--graphite);
+  color:#fff;
+  font-size:15px;
+  font-weight:600;
+  text-decoration:none;
+  border-radius:0;
+  transition:top .18s ease;
+}
+.skip-link:focus{top:0}
+
+/* ==========================================================================
+   A. HEADER
+   ========================================================================== */
+
+.site-header{
+  position:sticky;
+  top:0;
+  z-index:50;
+  /* Непрозрачный белый фон в обоих состояниях. Без backdrop-filter. */
+  background:var(--header-bg);
+  /* Обе линии расположены ниже нижней границы шапки:
+     1-я — стальная кромка вплотную к краю, 2-я — светлый кант под ней. */
+  box-shadow:
+    0 1px 0 var(--steel-line),
+    0 2px 0 rgba(255,255,255,.55);
+  transition:box-shadow .22s ease;
+}
+.site-header.is-scrolled{
+  background:var(--header-bg);
+  box-shadow:
+    0 1px 0 #c9d2d9,
+    0 2px 0 rgba(255,255,255,.5),
+    0 8px 22px rgba(20,24,29,.10);
+}
+
+.site-header__inner{
+  min-height:var(--header-h);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+}
+
+.brand{
+  display:inline-flex;
+  align-items:center;
+  min-height:44px;
+  text-decoration:none;
+  flex:0 0 auto;
+}
+/* Логотип: ширина и высота задаются только высотой, ширина
+   автоматическая, поэтому пропорции исходной картинки
+   (556×112) сохраняются и растяжения по осям быть не может.
+   Видимая графика совпадает с холстом — прозрачных полей нет,
+   так что ×1.5 применён именно к фактическому размеру.
+   Высота в потоке, без transform:scale, поэтому шапка занимает
+   ровно столько места, сколько занимает логотип. */
+.brand__logo{
+  display:block;
+  height:72px;                                 /* было 48px, ×1.5 */
+  width:auto;
+}
+
+.site-header__contacts{
+  display:flex;
+  align-items:center;
+  gap:20px;
+  flex:0 0 auto;
+}
+
+/* ---------- Общая навигация ----------
+   DOM-порядок: логотип → кнопка раскрытия → nav.
+   На desktop nav стоит сразу за логотипом, а последним пунктом списка
+   идёт CTA заявки, прижатый вправо; кнопка раскрытия скрыта.
+   На mobile nav занимает отдельную строку под верхним рядом, кнопка
+   появляется только при работающем JS, а CTA становится заметной
+   кнопкой внутри раскрытого меню. */
+
+.site-nav__list{
+  list-style:none;
+}
+
+/* Навигация. Прописные и на 20% крупнее: ссылка остаётся в той
+   же насыщенности и в той же гарнитуре, разрядка не меняется,
+   чтобы увеличение не разъехалось по ширине. */
+.site-nav__link{
+  display:inline-flex;
+  align-items:center;
+  min-height:44px;
+  font-size:18px;                              /* было 15px, ×1.2 */
+  font-weight:600;
+  color:var(--graphite);
+  text-decoration:none;
+  text-transform:uppercase;
+  transition:color .18s ease;
+}
+.site-nav__link[aria-current="page"]{color:var(--amber)}
+
+@media (hover:hover) and (pointer:fine){
+  .site-nav__link:hover{color:var(--steel-500)}
+}
+
+/* Без JS панель раскрыта и ссылки доступны; кнопки раскрытия нет. */
+.site-nav-toggle{
+  display:none;
+  align-items:center;
+  justify-content:center;
+  min-width:44px;
+  min-height:44px;
+  padding:0 12px;
+  border:1px solid var(--line);
+  border-radius:10px;
+  background:var(--neutral-bg-alt);
+  color:var(--graphite);
+  cursor:pointer;
+}
+.site-nav-toggle__icon{
+  display:block;
+  width:18px;
+  height:12px;
+  background-image:
+    linear-gradient(currentColor,currentColor),
+    linear-gradient(currentColor,currentColor),
+    linear-gradient(currentColor,currentColor);
+  background-size:18px 2px;
+  background-position:0 0,0 5px,0 10px;
+  background-repeat:no-repeat;
+}
+
+/* Класс успешной инициализации ставится скриптом. */
+.menu-ready .site-nav-toggle{display:inline-flex}
+.menu-ready .site-nav{display:none}
+.menu-ready .site-nav.is-open{display:block}
+
+/* CTA заявки в шапке: это принятая янтарная кнопка .btn, её оформление
+   не меняется. Здесь только раскладка. */
+.site-nav__cta{display:inline-flex}
+
+/* Desktop >=1180px: логотип, навигация и CTA в одной строке.
+   Порог выбран по вместимости, а не по прежнему 900px: в строке
+   теперь ещё и кнопка «Оставить заявку», и на 900–1179px сумма
+   ширин логотипа, трёх ссылок и кнопки больше ширины контейнера.
+   Ниже порога включается мобильная раскладка — логотип и текст
+   уменьшаться не могут, поэтому уменьшается строка, а не буквы.
+   Порог сохранён: при 1180px группа ссылок центрируется в промежутке
+   шириной 675px, а занимает 452px, то есть места хватает с запасом,
+   и переносить порог или уменьшать что-либо не потребовалось. */
+@media (min-width:1180px){
+  /* Зазор между логотипом и навигацией в этой ветке снят: разносить их
+     должен не фиксированный gap, а свободное место контейнера, которое
+     делится между двумя auto-margin ниже. С gap:16px промежуток между
+     логотипом и кнопкой получался на 16px шире с левой стороны от
+     логотипа, и группа ссылок вставала на 8px левее его середины.
+     Мобильная ветка ниже сохраняет свои собственные зазоры сетки. */
+  .site-header__inner{display:flex; align-items:center; justify-content:flex-start; gap:0}
+  .site-nav{display:block; flex:1 1 auto; min-width:0}
+  .site-nav__list{display:flex; align-items:center}
+  /* Промежуток 22px между пунктами задан на самом пункте, а не gap.
+     Значение то же, что было в gap, и расстояние между ссылками
+     остаётся прежним. Причина: последний пункт списка — кнопка
+     заявки, и своего промежутка слева у него быть не должно —
+     справа от кнопки свободного места до правой границы контейнера
+     нет, её держит сама строка. С gap этот зазор попадал бы и перед
+     кнопкой, и центрирование перестало бы быть симметричным. */
+  .site-nav__list > li + li{margin-left:22px}
+  /* Группа из трёх ссылок центрируется в свободном промежутке МЕЖДУ
+     правой границей логотипа и левой границей кнопки заявки — не
+     относительно окна и не относительно всей шапки. Механика: две
+     симметричные auto-margin слева — на первом пункте списка (перед
+     группой ссылок) и на последнем (перед кнопкой). Свободное место
+     делится между ними поровну, поэтому группа встаёт ровно в
+     середину промежутка, а кнопка, идущая следом, остаётся у правой
+     границы контейнера. Обе величины текучие: ни одна не задана
+     числом пикселей и не снята со скриншота, поэтому при любой ширине
+     логотипа, ссылок и кнопки центр промежутка остаётся серединой
+     группы. Кнопка заявки в центрируемую группу не входит: она
+     отдельный пункт списка, крайние auto-margin стоят на первом и
+     последнем <li>, поэтому на неё действует только левая. */
+  .site-nav__list > li:first-child,
+  .site-nav__list > li:last-child{margin-left:auto}
+  .site-nav-toggle{display:none}
+  .menu-ready .site-nav-toggle{display:none}
+  .menu-ready .site-nav{display:block}
+  .menu-ready .site-nav.is-open{display:block}
+}
+
+/* Mobile <1180px: логотип + кнопка сверху, nav отдельной строкой.
+   Сетка, а не order: DOM-порядок сохраняется, раскладка задана областями. */
+@media (max-width:1179px){
+  /* Высота шапки в этой раскладке равна высоте логотипа плюс 16px,
+     поэтому после увеличения логотипа до 57px она стала 73px.
+     Значение переменной поднято на те же 73px, иначе шапка была бы
+     73px на 768–899px и 72px ниже, а отступы якорей и верхний отступ
+     hero считали бы от старого числа. */
+  :root{--header-h:73px}
+  .site-header__inner{
+    display:grid;
+    grid-template-columns:auto minmax(0,1fr);
+    grid-template-areas:
+      "brand toggle"
+      "nav   nav";
+    column-gap:12px;
+  }
+  /* Собственный padding внутреннего отступа шапки убран: теперь он
+     ровно как у .container, поэтому левый край логотипа совпадает
+     с левой границей общего контентного контейнера, от которой
+     начинаются тексты и карточки секций. Логотип не прижат к краю
+     окна: поле 24px остаётся (на уже принятой узкой ветке ниже
+     640px контейнер даёт 18px, и шапка теперь ровно такая же).
+     Из-за этого доступная ширина верхней строки на 20px меньше
+     прежней, и порог уменьшенной ветки логотипа перенесён с
+     366px на 374px — расчёт в комментарии к .brand__logo ниже. */
+  .brand{grid-area:brand}
+  .site-nav-toggle{grid-area:toggle; justify-self:end}
+  .site-nav{
+    grid-area:nav;
+    padding:6px 0 12px;
+    border-top:1px solid var(--line);
+  }
+  .site-nav__list{display:grid; gap:2px}
+  .site-nav__link{
+    padding:4px 2px;
+    font-size:19.2px;                           /* было 16px, ×1.2 */
+  }
+  /* CTA заявки в раскрытом меню: во всю ширину колонки, чтобы её
+     было видно сразу, без точного попадания. */
+  .site-nav__list > li:last-child{margin-top:12px}
+  .site-nav__cta{display:flex; width:100%}
+  /* Логотип ×1.5 — 57px. В существующей строке рядом стоит кнопка
+     раскрытия: 57px дают ширину 282.9px, и вместе с зазором 12px
+     и кнопкой 44px требуют 338.9px. Столько есть от 387px при поле
+     24px и от 375px при поле 18px на узкой ветке. Ниже точный ×1.5
+     уже не помещается, и уменьшать его молча нельзя, поэтому ниже
+     берётся максимум, который влезает без наезда на кнопку: 44px =
+     218.4px, итого 274.4px при доступных 338px на 374px. */
+  .brand__logo{height:57px}                    /* было 38px, ×1.5 */
+}
+
+@media (max-width:374px){
+  .brand__logo{height:44px}                    /* было 32px */
+  .site-header__inner{column-gap:8px}
+}
+
+@media (max-width:360px){
+  .btn{font-size:14px;padding:11px 14px}
+}
+
+/* ==========================================================================
+   Медно-янтарная поверхность
+   .btn — прозрачная полная область взаимодействия (без clip-path),
+   металл и тень живут на псевдоэлементах под текстом.
+   Базовый цвет поверхности — вычисленный цвет eyebrow принятой
+   секции manifesto: --amber (#a86400). Переменные поверхности
+   объявлены внутри .btn и не трогают :root, поэтому остальные
+   элементы сайта не перекрашиваются.
+   ========================================================================== */
+
+.btn{
+  /* Глубина среза правого верхнего угла. Единственный источник размера:
+     и clip-path металла, и все варианты кнопок берут значение отсюда. */
+  --btn-cut:16px;
+  /* Сдвиг теневого слоя относительно кнопки: на столько же вниз и
+     наружу по бокам. Задаёт и inset слоя, и поправку его полигона,
+     поэтому силуэт тени совпадает с силуэтом поверхности. */
+  --btn-lift:2px;
+  /* Ровная заливка поверхности, без светоткани внутри.
+     normal — самый светлый янтарно-коричневый, который ещё держит
+     4.5:1 с белым текстом: #a66600 даёт 4.64:1. Светлее нельзя:
+     #aa6800 уже 4.48:1. hover — тёмный медно-коричневый #8a5000
+     (6.51:1). Тон остаётся в семействе eyebrow manifesto (#a86400). */
+  --btn-face:#a66600;
+  --btn-face-hover:#8a5000;
+  position:relative;
+  isolation:isolate;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:44px;
+  padding:12px 22px;
+  border:0;
+  border-radius:var(--radius);
+  font:inherit;
+  font-size:15px;
+  font-weight:700;
+  line-height:1.2;
+  letter-spacing:-.005em;
+  text-decoration:none;
+  white-space:nowrap;
+  cursor:pointer;
+  background:none;
+  /* Светлый текст на медно-янтарной поверхности: контраст обычного
+     текста кнопки 4.64:1 в normal и 6.51:1 в hover (цель — 4.5:1). */
+  color:#fff;
+  transition:transform .18s ease;
+}
+
+/* Декоративные слои: без содержимого, без событий, всегда под текстом.
+   Оба отрицательны по z-index, поэтому текст (обычный поток) рисуется сверху. */
+.btn::before,
+.btn::after{
+  content:"";
+  position:absolute;
+  pointer-events:none;
+  border-radius:var(--radius);
+}
+
+/* Тень: смещена вниз, без верхнего ореола. Слой повторяет силуэт
+   поверхности, поэтому срезанный угол не закрывает прямоугольная рамка:
+   тот же polygon, что у ::before, но с поправкой на собственный inset
+   (--btn-lift вниз и наружу), поэтому срез тени ложится на тот же
+   скос, а не рядом с ним. Размытие обрезается по этому же силуэту
+   и уходит в фон окружения спокойно, без рамки. */
+.btn::after{
+  z-index:-2;
+  inset:var(--btn-lift) calc(-1 * var(--btn-lift))
+       calc(-1 * var(--btn-lift)) calc(-1 * var(--btn-lift));
+  clip-path:polygon(
+    var(--btn-lift) calc(-1 * var(--btn-lift)),
+    calc(100% - var(--btn-cut) - var(--btn-lift)) calc(-1 * var(--btn-lift)),
+    calc(100% - var(--btn-lift)) calc(var(--btn-cut) - var(--btn-lift)),
+    calc(100% - var(--btn-lift)) calc(100% - var(--btn-lift)),
+    var(--btn-lift) calc(100% - var(--btn-lift))
+  );
+  box-shadow:0 3px 9px rgba(13,18,25,.38);
+}
+
+/* Металлическая поверхность со срезом правого верхнего угла.
+   Срез читается без наведения: глубина задаётся --btn-cut, сам угол
+   не меняется, а текст и иконка остаются в стороне от среза
+   (правый внутренний отступ заведомо больше --btn-cut).
+
+   Внутри — одна ровная заливка. Светотня внутри кнопки убрана
+   совсем: нет подсветки центра, нет бегущего блика, нет анимации
+   background-position. Остались только тонкие светлые кромки по
+   краям (верх, низ, бок) — они подчёркивают край, а не освещают
+   центр, — и один очень сдержанный статичный переход к низу:
+   он темнее верхней части, поэтому контраст надписи только
+   растёт и пятен не создаёт. Смена оттенка normal → hover идёт
+   через background-color. */
+.btn::before{
+  z-index:-1;
+  inset:0;
+  clip-path:polygon(0 0,calc(100% - var(--btn-cut)) 0,100% var(--btn-cut),100% 100%,0 100%);
+  background-color:var(--btn-face);
+  background-repeat:no-repeat;
+  background-image:
+    linear-gradient(180deg,
+      rgba(58,32,0,0) 55%,
+      rgba(58,32,0,.08) 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255,238,208,.5),
+    inset 0 -1px 0 rgba(48,26,0,.28),
+    inset 1px 0 0 rgba(255,238,208,.22),
+    inset -1px 0 0 rgba(48,26,0,.2);
+  transition:background-color .18s ease,box-shadow .18s ease;
+}
+
+/* Слой тени .btn::after обрезан по силуэту поверхности для всех кнопок
+   компонента, поэтому отдельного класса для этого больше не нужно:
+   раньше контур получали только варианты с .btn--silhouette и
+   телефонная кнопка, а кнопка шапки и отправка заявки на светлом фоне
+   оставались с прямоугольной тенью, и её угол выходил в срез.
+   Обрезка живёт только на ::after — сама ссылка остаётся без
+   clip-path, поэтому не теряет ни область нажатия, ни обводку фокуса.
+   Кнопка «Наверх» этой системой не пользуется и не затрагивается. */
+
+/* Наведение — только для точного указателя.
+   Механика подъёма — эталон кнопки Hero: тот же сдвиг на 1px,
+   та же длительность .18s и то же смягчение ease. Поверхность при
+   этом не меняет рисунка, а только темнеет: background-color
+   переходит из --btn-face в --btn-face-hover. */
+@media (hover:hover) and (pointer:fine){
+  .btn:hover{transform:translateY(-1px)}
+  .btn:hover::before{
+    background-color:var(--btn-face-hover);
+    box-shadow:
+      inset 0 1px 0 rgba(255,238,208,.62),
+      inset 0 -1px 0 rgba(48,26,0,.34),
+      inset 1px 0 0 rgba(255,238,208,.28),
+      inset -1px 0 0 rgba(48,26,0,.24);
+  }
+  .btn:hover::after{box-shadow:0 6px 16px rgba(13,18,25,.44)}
+}
+
+/* Нажатие работает и на сенсорных устройствах: без pointer-фильтра.
+   Только трансформация и тон кромок — размеры layout не меняются,
+   дополнительного затемнения нет: подъём Hero не усиливаем. */
+.btn:active{transform:translateY(1px)}
+.btn:active::after{box-shadow:0 1px 3px rgba(13,18,25,.3)}
+.btn:active::before{
+  box-shadow:
+    inset 0 1px 0 rgba(255,238,208,.44),
+    inset 0 -1px 0 rgba(48,26,0,.36),
+    inset 1px 0 0 rgba(255,238,208,.2),
+    inset -1px 0 0 rgba(48,26,0,.26);
+}
+
+/* Фокус кнопки на новой поверхности. Янтарный индикатор рядом с
+   медно-янтарной кнопкой сливается, поэтому у .btn обводка графитовая:
+   она заметна и на светлом фоне секций, и на её собственной поверхности.
+   В hero остаётся янтарно-светлая — там тёмный фон. Правило локальное
+   для .btn: глобальный индикатор фокуса сайта не изменён. */
+.btn:focus-visible{outline-color:var(--graphite)}
+.hero .btn:focus-visible{outline-color:var(--amber-light)}
+
+/* Крупная кнопка: срез пропорционален её высоте. */
+.btn--lg{--btn-cut:18px;min-height:56px;padding:16px 30px;font-size:17px}
+
+/* Текст CTA шапки: на узких экранах короткая надпись.
+   Скрытый вариант убран из потока через display:none, поэтому
+   доступное имя не дублируется. */
+.cta-short{display:none}
+
+/* ==========================================================================
+   B. HERO
+   ========================================================================== */
+
+.hero{
+  position:relative;
+  isolation:isolate;
+  display:flex;
+  align-items:center;
+  min-height:clamp(620px,86vh,860px);
+  color:#fff;
+  background:var(--steel-900);
+  overflow:hidden;
+}
+@supports (min-height:1svh){
+  .hero{min-height:clamp(620px,86svh,860px)}
+}
+@media (min-width:1024px){
+  .hero{min-height:clamp(680px,88vh,920px)}
+  @supports (min-height:1svh){
+    .hero{min-height:clamp(680px,88svh,920px)}
+  }
+}
+
+.hero__media{
+  position:absolute;
+  inset:0;
+  z-index:-2;
+}
+.hero__image{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  /* Стартовое значение. Итоговое кадрирование подбирается визуально. */
+  object-position:50% 50%;
+}
+
+/* Направленный тёмный scrim слева направо.
+   Стартовые значения: .78 слева и .45 снизу. Не добавлять третьего слоя. */
+.hero__scrim{
+  position:absolute;
+  inset:0;
+  z-index:-1;
+  background:
+    linear-gradient(100deg,
+      rgba(8,12,18,.78) 0%,
+      rgba(8,12,18,.69) 26%,
+      rgba(8,12,18,.45) 48%,
+      rgba(8,12,18,.17) 68%,
+      rgba(8,12,18,.09) 100%),
+    linear-gradient(180deg,
+      rgba(8,12,18,.40) 0%,
+      rgba(8,12,18,0) 26%,
+      rgba(8,12,18,0) 62%,
+      rgba(8,12,18,.45) 100%);
+}
+
+.hero__inner{
+  position:relative;
+  /* Воздух до следующей секции сокращён на 20%: 112/16/192 → 89.6/12.8/153.6.
+     Отступ под липкой шапкой задан отдельно, в мобильной ветке. */
+  padding-block:clamp(89.6px,12.8vh,153.6px);
+}
+
+.hero__text{max-width:min(100%,780px)}
+
+.hero__eyebrow{
+  display:inline-block;
+  margin-bottom:clamp(20px,3vh,30px);
+  font-size:13px;
+  font-weight:700;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:var(--amber-light);
+}
+
+.hero__title{
+  font-size:clamp(2.25rem,5.4vw,5.5rem);
+  line-height:1.04;
+  font-weight:800;
+  letter-spacing:-.03em;
+  margin-bottom:clamp(20px,2.6vh,28px);
+}
+@media (min-width:900px){
+  .hero__title{
+    font-size:clamp(1.8rem,4.32vw,4.4rem);
+  }
+}
+.hero__title-sub{
+  display:block;
+  margin-top:.28em;
+  font-size:clamp(1.125rem,2.05vw,2rem);
+  line-height:1.26;
+  font-weight:500;
+  letter-spacing:-.015em;
+  color:rgba(255,255,255,.80);
+  max-width:22ch;
+}
+
+.hero__lead{
+  max-width:56ch;
+  font-size:clamp(1rem,1.22vw,1.1875rem);
+  line-height:1.6;
+  color:rgba(255,255,255,.80);
+  margin-bottom:clamp(26px,3.4vh,34px);
+}
+
+.hero__chips{
+  list-style:none;
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  margin-bottom:clamp(32px,4.4vh,44px);
+}
+.chip{
+  display:inline-flex;
+  align-items:center;
+  min-height:38px;
+  padding:9px 16px;
+  font-size:14.5px;
+  font-weight:500;
+  color:rgba(255,255,255,.94);
+  background:rgba(27,39,51,.46);
+  border:1px solid rgba(255,255,255,.22);
+  border-radius:0;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.16),
+    0 1px 3px rgba(8,12,18,.28);
+}
+
+.hero__cta{display:flex}
+
+/* ==========================================================================
+   C. РЕДАКЦИОННЫЙ БЛОК
+   ========================================================================== */
+
+.eyebrow{
+  display:block;
+  margin-bottom:18px;
+  font-size:12.5px;
+  font-weight:800;
+  letter-spacing:.13em;
+  text-transform:uppercase;
+  color:var(--amber);
+}
+
+.manifesto{
+  position:relative;
+  isolation:isolate;
+  /* Направляющая привязана к одной переменной: --guide-pad — это одновременно
+     отступ секции и расстояние от её нижней границы до низа группы карточек.
+     Воздух сокращён на 20%: 128/18/256 → 102.4/14.4/204.8. Полоса осталась
+     прижата к нижнему краю карточек, потому что меняется то же значение. */
+  --guide-pad:clamp(102.4px,14.4vw,204.8px);
+  /* Широкий плоский профиль: 36px на desktop, 20px на mobile. */
+  --guide-thickness:36px;
+  /* На столько полоса заходит за нижний край карточек (половина толщины). */
+  --guide-lap:18px;
+  --guide-fill:color-mix(in srgb,var(--amber) 23%,transparent);
+  /* Фланец: крупный фрагмент, обрезанный правой границей композиции.
+   --flange-right — на сколько фланец выходит за правый край секции:
+   отступ подобран так, чтобы буквы заголовка оставались чистыми,
+   а сам фланец обрезался границей композиции примерно наполовину. */
+  --flange-size:clamp(400px,31vw,470px);
+  --flange-right:clamp(70px,15.2vw,250px);
+  --flange-top:clamp(18px,3.6vw,56px);
+  --flange-opacity:.06;
+  background:var(--neutral-bg);
+  padding-block:var(--guide-pad);
+}
+/* Содержимое секции всегда поверх декоративного слоя. */
+.manifesto > .container{position:relative;z-index:1}
+/* Широкий центрированный ввод: 960px при 48px заголовке даёт
+   2–3 естественные строки без переносов по одному слову. */
+.manifesto__head{
+  max-width:min(100%,960px);
+  margin-inline:auto;
+  margin-bottom:clamp(22px,2.4vw,34px);
+  text-align:center;
+}
+.manifesto__title{
+  font-size:clamp(1.625rem,3.15vw,3rem);
+  line-height:1.14;
+  font-weight:800;
+  letter-spacing:-.024em;
+}
+.manifesto__lead{
+  max-width:min(100%,720px);
+  margin-inline:auto;
+  margin-bottom:clamp(38px,4.6vw,66px);
+  font-size:clamp(1.0625rem,1.32vw,1.25rem);
+  line-height:1.62;
+  color:var(--graphite-soft);
+}
+
+/* Три принципа поддержки: инженерные панели.
+   Контент по центру: графический модуль сверху, текст под ним. */
+.manifesto__list{
+  position:relative;
+  list-style:none;
+  display:grid;
+  gap:16px;
+}
+.manifesto__item{
+  position:relative;
+  z-index:1;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:flex-start;
+  gap:20px;
+  padding:clamp(24px,2.4vw,32px) clamp(20px,2vw,28px);
+  text-align:center;
+  background:var(--neutral-bg-alt);
+  border:1px solid var(--steel-line);
+  border-radius:var(--radius);
+  /* Нижняя кромка — статичная, без размытия и без эффекта парящей карточки. */
+  box-shadow:inset 0 -2px 0 var(--line-soft);
+  font-size:16px;
+  font-weight:600;
+  line-height:1.45;
+  color:var(--graphite);
+}
+
+/* Угловые метки в двух противоположных углах: 26×26px с отступом 6px,
+   толщина 2px. В обычном состоянии уже хорошо различимы — приглушённости
+   ради оставляем только 0.85 непрозрачности. */
+.manifesto__item::before,
+.manifesto__item::after{
+  content:"";
+  position:absolute;
+  width:26px;
+  height:26px;
+  pointer-events:none;
+  /* Цвет меток задан один раз здесь. В правилах углов ниже толщина
+     и набор сторон задаются длинными свойствами: сокращение border-top
+     без цвета сбрасывало бы цвет метки на currentColor. */
+  border-style:solid;
+  border-width:2px;
+  border-color:var(--steel-500);
+  opacity:.85;
+  transition:opacity .18s ease,border-color .18s ease;
+}
+.manifesto__item::before{
+  top:6px;
+  left:6px;
+  border-right-width:0;
+  border-bottom-width:0;
+}
+.manifesto__item::after{
+  right:6px;
+  bottom:6px;
+  border-top-width:0;
+  border-left-width:0;
+}
+
+/* Тонкая внутренняя рамка: отступ 6px от внешней границы, толщина 1px.
+   В обычном состоянии прозрачна, поэтому панель выглядит законченной
+   и без hover. Собственный декоративный слой внутри поля отступов:
+   не заходит ни на графический модуль, ни на текст, ни на направляющую. */
+.manifesto__frame{
+  position:absolute;
+  inset:6px;
+  border:1px solid transparent;
+  pointer-events:none;
+  transition:border-color .18s ease;
+}
+
+/* Реакция на мышь: панель остаётся панелью. Без подъёма, наклона, следа
+   за мышью, курсора-указателя, новых теней и ссылок — только цвет:
+   проявляется внутренняя рамка, метки становятся контрастнее,
+   иконка слегка темнеет. Под reduced-motion переход обнуляется
+   общим правилом файла, финальные цвета меняются сразу. */
+@media (hover:hover) and (pointer:fine){
+  .manifesto__item:hover::before,
+  .manifesto__item:hover::after{
+    opacity:1;
+    border-color:var(--steel-700);
+  }
+  .manifesto__item:hover .manifesto__frame{border-color:var(--steel-400)}
+  .manifesto__item:hover .manifesto__icon{color:var(--graphite-soft)}
+}
+
+/* Графический модуль: 64×64px, прямые углы, спокойная непрозрачная
+   подложка и тонкая граница. Модуль не кнопка: без собственного
+   hover, focus и курсора, реакция живёт только на панели. */
+.manifesto__art{
+  flex:0 0 auto;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  width:64px;
+  height:64px;
+  border:1px solid var(--line);
+  background:var(--neutral-bg);
+  pointer-events:none;
+}
+/* Иконка из набора Lucide: один контур currentColor, без заливок,
+   градиентов и теней. Геометрия задана источником, размер и толщина
+   линии — здесь, одинаковые для всех трёх иконок. */
+.manifesto__icon{
+  display:block;
+  width:42px;
+  height:42px;
+  color:var(--steel-500);
+  transition:color .18s ease;
+}
+
+/* ---------- Фоновый декор: направляющая и фланец ----------
+   Один локальный слой ровно по границам секции.
+   overflow:hidden обрезает фланец по правой границе композиции
+   и не даёт горизонтальной прокрутки; ничего за пределы
+   секции, в том числе в следующую, слой не выносит. */
+.manifesto__decor{
+  position:absolute;
+  z-index:0;
+  left:0;
+  right:0;
+  top:0;
+  bottom:0;
+  overflow:hidden;
+  pointer-events:none;
+}
+
+/* Направляющая — только горизонтальная полоса: входит слева, проходит
+   за нижней частью группы карточек и выходит вправо до края секции.
+   Вниз не поворачивает и границу следующей секции не пересекает.
+   Верхняя кромка полосы стоит на --guide-lap выше низа карточек:
+   половина толщины остаётся за блоками, половина — в поле под ними. */
+.manifesto__guide{
+  position:absolute;
+  left:0;
+  right:0;
+  top:calc(100% - var(--guide-pad) - var(--guide-lap));
+  height:var(--guide-thickness);
+  background:var(--guide-fill);
+}
+
+/* Фрагмент механического фланца в правой фоновой области секции.
+   Только контур CurrentColor: без градиентов, бликов и теней. */
+.manifesto__flange{
+  position:absolute;
+  top:var(--flange-top);
+  right:calc(-1 * var(--flange-right));
+  width:var(--flange-size);
+  height:var(--flange-size);
+  color:var(--steel-700);
+  opacity:var(--flange-opacity);
+  pointer-events:none;
+}
+
+/* Однократное появление. Базовое состояние — финальное и статичное,
+   начальное задаёт только класс, который ставит скрипт.
+   transition:none в начальном состоянии обязателен: иначе сам класс
+   проявил бы фланец при добавлении, то есть до входа секции в кадр.
+   Без JS и при prefers-reduced-motion фланец сразу на месте. */
+@media (min-width:900px){
+  .manifesto__flange{
+    transition:transform 1.2s cubic-bezier(.22,.61,.36,1),opacity 1.2s ease;
+  }
+  .manifesto__flange.is-pending{
+    transition:none;
+    opacity:0;
+    transform:rotate(-8deg) translate3d(14px,-14px,0);
+  }
+}
+@media (prefers-reduced-motion:reduce){
+  .manifesto__flange,
+  .manifesto__flange.is-pending{
+    transition:none;
+    opacity:var(--flange-opacity);
+    transform:none;
+  }
+}
+
+/* Desktop >=900px: три карточки в ряд. Направляющая идёт за карточками
+   и видна только в промежутках и у краёв, поворот вниз — у правого края. */
+@media (min-width:900px){
+  .manifesto__list{
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:clamp(20px,2.2vw,30px);
+  }
+}
+
+/* Ниже 1280px: справа от центрированного заголовка не остаётся места под
+   крупный фланец, поэтому он уходит вниз — фрагментом у правого края
+   секции, рядом с полосой. Положение задано локальным bottom:0 от нижней
+   границы секции и не зависит от маршрута направляющей.
+   Текст при этом не перекрывается совсем. */
+@media (max-width:1279px){
+  .manifesto{
+    --flange-size:clamp(180px,21vw,260px);
+    --flange-opacity:.055;
+  }
+  .manifesto__flange{
+    top:auto;
+    bottom:0;
+    right:calc(-1 * clamp(28px,9vw,84px));
+  }
+}
+
+/* Mobile <900px: полоса тоньше, фланец — небольшой фрагмент
+   у правого края под полосой. Движения нет. */
+@media (max-width:899px){
+  .manifesto{
+    --guide-thickness:20px;
+    --guide-lap:10px;
+    --flange-size:clamp(170px,46vw,260px);
+    --flange-opacity:.05;
+  }
+  .manifesto__flange{
+    right:calc(-1 * clamp(34px,13vw,72px));
+  }
+}
+
+/* ==========================================================================
+   D. ПЯТЬ НАПРАВЛЕНИЙ
+   Пять широких инженерных панелей в языке принятого блока C:
+   прямые углы, непрозрачная светлая поверхность, тонкая стальная рамка,
+   угловые метки в противоположных углах, спокойная внутренняя рамка.
+   Каждая панель — одна ссылка на существующую категорию каталога
+   programs.html: номер, текст и обозначение перехода лежат внутри
+   .dir-row__link, поэтому клик работает по всей панели.
+   Нумерация крупная, за зоной номеров идёт широкая полоса того же
+   приглушённого янтаря, что горизонтальная направляющая блока C.
+   Фон секции не меняется. Без иконок, заливок и скосов панелей.
+   ========================================================================== */
+
+.directions{
+  position:relative;
+  background:var(--neutral-bg-alt);
+  padding-block:clamp(102.4px,14.4vw,192px);   /* воздух между секциями −20%: 128/18/240 → 102.4/14.4/192 */
+  /* Ось полосы и колонки нумерации. Все геометрические величины
+     секции выражены через эти переменные, а не фиксированными
+     координатами документа. */
+  --dir-num:88px;                        /* колонка номера */
+  --dir-num-size:clamp(40px,3vw,48px);   /* кегль номера */
+  --dir-rail:36px;                       /* ширина полосы за номерами */
+  --dir-gap:clamp(12px,1.2vw,16px);      /* промежуток между панелями */
+  --dir-link-pad:clamp(24px,2.6vw,34px); /* внутренний отступ панели */
+  /* Горизонтальный отступ .container. Ось полосы выводится от него
+     вместе с отступом панели и колонкой номера, поэтому полоса
+     совпадает с номерами на любой ширине. Значение повторяет
+     padding-inline у .container и меняется вместе с ним. */
+  --dir-cont-pad:24px;
+  /* Тот же приглушённый янтарь, что у принятой направляющей блока C.
+     Прозрачность есть только здесь: поверхности панелей и текст
+     остаются полностью непрозрачными. */
+  --dir-rail-fill:color-mix(in srgb,var(--amber) 23%,transparent);
+}
+/* Порядок слоёв: фон секции → направляющая → непрозрачные панели →
+   номера, текст, обозначения переходов и декор панелей. */
+.directions > .container{position:relative;z-index:1}
+
+/* Вертикальная направляющая за зоной номеров: от верхней до нижней
+   границы секции, в соседние секции не выходит. Идёт под панелями,
+   поэтому читается в верхнем и нижнем полях секции и в промежутках
+   между панелями, а внутри карточек не видна. Ось — центр колонки
+   номера: левое поле контейнера, плюс рамка панели, плюс её отступ,
+   плюс половина колонки, минус половина полосы. */
+.directions__rail{
+  position:absolute;
+  z-index:0;
+  top:0;
+  bottom:0;
+  left:calc(50% - min(50%,var(--container) / 2)
+            + var(--dir-cont-pad) + 1px
+            + var(--dir-link-pad) + var(--dir-num) / 2
+            - var(--dir-rail) / 2);
+  width:var(--dir-rail);
+  background:var(--dir-rail-fill);
+  pointer-events:none;
+}
+/* Широкий центрированный ввод: 940px при 34px заголовке даёт
+   естественные строки без переносов по одному слову.
+   На mobile — доступная ширина контейнера. */
+.directions__head{
+  max-width:min(100%,940px);
+  margin-inline:auto;
+  margin-bottom:clamp(38px,4.6vw,60px);
+  text-align:center;
+}
+.directions__title{
+  font-size:clamp(1.375rem,2.35vw,2.125rem);
+  line-height:1.18;
+  font-weight:800;
+  letter-spacing:-.022em;
+}
+
+/* Панели идут небольшим промежутком, а не сплошной таблицей. */
+.dir-list{
+  list-style:none;
+  position:relative;
+  display:grid;
+  gap:var(--dir-gap);
+}
+.dir-row{
+  position:relative;
+  background:var(--neutral-bg);
+  border:1px solid var(--steel-line);
+  border-radius:var(--radius);
+}
+
+/* Угловые метки 26×26px с отступом 6px, толщина 2px — как в блоке C.
+   В обычном состоянии уже хорошо различимы. */
+.dir-row::before,
+.dir-row::after{
+  content:"";
+  position:absolute;
+  width:26px;
+  height:26px;
+  pointer-events:none;
+  /* Цвет задан один раз здесь; в правилах углов ниже только offsets
+     и набор сторон: сокращение border-top без цвета сбрасывало бы
+     цвет метки на currentColor. */
+  border-style:solid;
+  border-width:2px;
+  border-color:var(--steel-500);
+  opacity:.85;
+  transition:opacity .18s ease,border-color .18s ease;
+}
+.dir-row::before{
+  top:6px;
+  left:6px;
+  border-right-width:0;
+  border-bottom-width:0;
+}
+.dir-row::after{
+  right:6px;
+  bottom:6px;
+  border-top-width:0;
+  border-left-width:0;
+}
+
+/* Тонкая внутренняя рамка: отступ 6px от внешней границы, толщина 1px.
+   Прозрачна в обычном состоянии и проявляется при наведении.
+   Собственный декоративный слой внутри поля отступов: не заходит
+   ни на номер, ни на текст, ни на обозначение перехода. */
+.dir-row__frame{
+  position:absolute;
+  inset:6px;
+  border:1px solid transparent;
+  pointer-events:none;
+  transition:border-color .18s ease;
+}
+
+/* Одна ссылка на всю панель: номер слева, текст в средней области,
+   обозначение перехода справа по вертикальному центру. */
+.dir-row__link{
+  position:relative;
+  z-index:1;
+  display:grid;
+  grid-template-columns:var(--dir-num) minmax(0,1fr) auto;
+  align-items:center;
+  column-gap:clamp(16px,1.8vw,28px);
+  padding:clamp(24px,2.4vw,30px) var(--dir-link-pad);
+  color:inherit;
+  text-decoration:none;
+}
+/* Номер — заметный элемент композиции: крупнее заголовка направления,
+   центрируется в своей колонке и по вертикали панели.
+   Высота панели от него не зависит: блок текста выше номера. */
+.dir-row__num{
+  align-self:center;
+  justify-self:center;
+  text-align:center;
+  font-size:var(--dir-num-size);
+  font-weight:750;
+  line-height:1;
+  letter-spacing:.01em;
+  color:var(--steel-500);
+  font-variant-numeric:tabular-nums;
+}
+.dir-row__body{min-width:0}
+.dir-row__title{
+  font-size:clamp(1.125rem,1.62vw,1.5rem);
+  line-height:1.28;
+  font-weight:750;
+  letter-spacing:-.015em;
+  margin-bottom:8px;
+  transition:color .18s ease;
+}
+/* 52ch — предел читаемой строки, а не ширина панели:
+   справа от описания живёт обозначение перехода. */
+.dir-row__desc{
+  max-width:52ch;
+  font-size:15.5px;
+  line-height:1.55;
+  color:var(--muted);
+}
+
+/* Обозначение перехода — та же медно-янтарная кнопка, что у hero CTA:
+   та же ровная поверхность .btn, прямые углы, правый верхний скос
+   и тонкие светлые кромки. Это span внутри внешней ссылки, а не
+   вложенная ссылка или button, поэтому отдельного поведения
+   клавиатуры у него нет.
+   Собственное движение панели не меняется: поднимается и темнеет
+   только визуальная кнопка, а панель, заголовок, описание и номер
+   остаются на месте. Реакция на наведение по самой панели — ниже,
+   в общем правиле для точного указателя. */
+.dir-row__go{
+  display:flex;
+  align-items:center;
+  justify-self:end;
+}
+.dir-row__go-btn:hover::after,
+.dir-row__go-btn:active::after{box-shadow:0 3px 9px rgba(13,18,25,.32)}
+
+/* Видимый фокус на всей панели: обводка идёт по границе ссылки
+   и охватывает номер, текст и обозначение перехода.
+   Глобальный индикатор фокуса не удаляется — меняется только отступ. */
+.dir-row__link:focus-visible{
+  outline:2px solid var(--amber);
+  outline-offset:-2px;
+  border-radius:var(--radius);
+}
+
+/* Наведение — только для устройств с точным указателем.
+   Панель остаётся на месте: без подъёма, наклона и следа за мышью.
+   Проявляется внутренняя рамка, усиливаются метки и заголовок,
+   а обозначение перехода получает ровно ту же реакцию, что и
+   hero CTA: подъём на 1px и затемнение поверхности. Двигается
+   только визуальная кнопка — панель, заголовок, описание и номер
+   неподвижны, кликабельность панели и переход по href прежние.
+   Двойной анимации нет: когда указатель над самой кнопкой,
+   оба правила дают одно и то же значение одного свойства.
+   Под reduced-motion переходы обнуляются общим правилом файла,
+   финальные цвета применяются сразу. */
+@media (hover:hover) and (pointer:fine){
+  .dir-row:hover::before,
+  .dir-row:hover::after{
+    opacity:1;
+    border-color:var(--steel-700);
+  }
+  .dir-row:hover .dir-row__frame{border-color:var(--steel-400)}
+  .dir-row:hover .dir-row__title{color:var(--steel-500)}
+  .dir-row:hover .dir-row__go-btn{transform:translateY(-1px)}
+  .dir-row:hover .dir-row__go-btn::before{background-color:var(--btn-face-hover)}
+}
+/* Нажатие. Сама визуальная кнопка — span, и :active к нему не
+   применяется: активируется внешняя ссылка панели. Поэтому отклик
+   на нажатие задаётся здесь и повторяет hero CTA: тот же сдвиг
+   на 1px вниз, без усиления. Правило ниже наведения по порядку,
+   поэтому при нажатии поверх наведения побеждает нажатие. */
+.dir-row__link:active .dir-row__go-btn{transform:translateY(1px)}
+
+/* Ниже 900px текст и переход уже не делят одну строку:
+   обозначение перехода переносится под описание, текст не сжимается. */
+@media (max-width:899px){
+  .dir-row__link{
+    grid-template-columns:var(--dir-num) minmax(0,1fr);
+    row-gap:14px;
+  }
+  .dir-row__go{
+    grid-column:2;
+    justify-self:start;
+  }
+}
+
+/* Mobile <640px: полоса остаётся за узкой колонкой номера,
+   текст и кнопка располагаются справа от неё. Основной текст
+   не уменьшается. */
+@media (max-width:639px){
+  .directions{
+    --dir-num:52px;
+    --dir-num-size:34px;
+    --dir-rail:24px;
+    --dir-cont-pad:18px;
+  }
+  .dir-row__link{row-gap:14px}
+  .dir-row__desc{max-width:none}
+}
+
+/* ==========================================================================
+   E. ВЫГОДЫ ДЛЯ ПРЕДПРИЯТИЯ
+   Слева ввод и статичный фланец, справа четыре широкие панели
+   результатов строго в одну колонку. Панели в языке блоков C и D:
+   прямые углы, непрозрачная светлая поверхность, тонкая стальная
+   рамка, технические угловые метки. За правой частью панелей —
+   широкая вертикальная направляющая того же приглушённого янтаря;
+   она идёт под панелями и читается только в промежутках между ними
+   и короткими участками сверху и снизу. Панели информационные:
+   без подъёма, курсора, ссылок и фокуса.
+   ========================================================================== */
+
+.benefits{
+  position:relative;
+  /* Ось направляющей. Левая граница панелей — это левая граница
+     правой колонки при 34/66 либо левая граница контейнера ниже 1280px.
+     Обе величины выражены той же сеткой, что и панели, поэтому полоса
+     не зависит от ширины экрана и не копирует координату страницы. */
+  --ben-cont-pad:24px;
+  --ben-col-gap:clamp(40px,5vw,80px);
+  --ben-num-col:0px;
+  --ben-rail:36px;                          /* ширина направляющей */
+  /* Отступ оси полосы от левого края панелей. Собран из той же
+     геометрии, что и ось .directions__rail: рамка панели 1px,
+     внутренний отступ панели как --dir-link-pad и половина
+     колонки номера. Значения повторяют переменные блока D
+     и меняются на тех же брейкпоинтах, поэтому ось обеих
+     секций совпадает при любой ширине, а не только при 1440px. */
+  --ben-panel-pad:clamp(24px,2.6vw,34px);
+  --ben-axis-num:44px;                      /* половина --dir-num (88px) */
+  --ben-rail-inset:calc(1px + var(--ben-panel-pad) + var(--ben-axis-num));
+  /* Ширина контейнера — та же, что задаёт .container, от неё
+     считается левая граница правой колонки сетки. */
+  --ben-cont-w:min(100%, var(--container));
+  /* Декор под вводом. Диаметр вдвое больше прежнего: 576px на 1440px
+     и 512px на 1280px. Меняется только размер — пропорции, геометрия
+     и толщины линий остаются в масштабе viewBox, поэтому по одной
+     оси деталь не растягивается. */
+  --ben-flange-size:clamp(480px,40vw,640px);
+  /* Отступ контейнера — левая граница .benefits__intro. Та же формула,
+     что у .benefits__rail, поэтому левый край детали считается от края
+     секции, а не от края ввода. */
+  --ben-flange-inset:calc(50vw - min(50vw, var(--container) / 2)
+                          + var(--ben-cont-pad));
+  --ben-rail-fill:color-mix(in srgb,var(--amber) 23%,transparent);
+  background:var(--neutral-bg);
+  border-top:1px solid var(--line);
+  padding-block:clamp(102.4px,14.4vw,192px);   /* воздух между секциями −20%: 128/18/240 → 102.4/14.4/192 */
+}
+/* Порядок слоёв: фон секции → направляющая и фланец → панели →
+   тексты, метки и внутренние рамки. Содержимое секции не обрезается. */
+.benefits > .container{
+  position:relative;
+  z-index:1;
+}
+
+/* Вертикальная направляющая: от верхней до нижней границы секции,
+   в соседние секции не выходит. Идёт под непрозрачными панелями,
+   поэтому читается в промежутках между ними и в свободных полях,
+   а внутри карточек не видна. Отрицательного z-index нет. */
+.benefits__rail{
+  position:absolute;
+  z-index:0;
+  top:0;
+  bottom:0;
+  /* левая граница панелей + отступ оси, выведенный из сетки,
+     минус половина полосы: отступ отсчитывается до оси, а не до
+     левой кромки, поэтому ось встаёт на те же 61px от края панели,
+     что и ось .directions__rail */
+  left:calc(50% - min(50%,var(--container) / 2)
+            + var(--ben-cont-pad) + var(--ben-num-col)
+            + var(--ben-rail-inset) - var(--ben-rail) / 2);
+  width:var(--ben-rail);
+  background:var(--ben-rail-fill);
+  pointer-events:none;
+}
+
+/* Фланец — принятая деталь блока C, крупный приглушённый фрагмент
+   в свободной области под всем левым вводом: eyebrow → h2 → пояснение
+   → фланец. Собственный локальный класс: скрипт появления фланца
+   manifesto работает только с .manifesto__flange и эту деталь не
+   трогает, поэтому здесь нет ни вращения, ни появления. Вне потока:
+   высота ввода и секции от детали не зависит. */
+.benefits__flange{
+  position:absolute;
+  z-index:0;
+  /* Верх детали — на расстоянии клиренса под низом ввода, а пояснение
+     — последний элемент ввода, поэтому отступ отсчитывается именно
+     от него. Деталь не заходит на текст и не на правую колонку. */
+  top:calc(100% + clamp(48px,3.6vw,64px));
+  /* Слева уходит ровно четверть диаметра за край экрана: левая
+     граница SVG в -0.25 диаметра от края секции, правая — в 0.75.
+     Родитель — ввод, поэтому сначала снимается его отступ от края
+     секции, и только затем добавляется сама четверть. */
+  left:calc(-1 * var(--ben-flange-inset) - 0.25 * var(--ben-flange-size));
+  width:var(--ben-flange-size);
+  height:auto;
+  color:var(--steel-700);
+  opacity:.06;
+  pointer-events:none;
+}
+/* Пока ввод занимает всю ширину (ниже 1280px), направляющая шла бы
+   поверх его строк. Непрозрачная подложка в цвет фона секции
+   перекрывает полосу, не меняя вид и отступы ввода. */
+@media (max-width:1279px){
+  .benefits__intro{
+    position:relative;
+    z-index:1;
+    background:var(--neutral-bg);
+    padding-inline:clamp(8px,2vw,16px);
+    margin-inline:calc(-1 * clamp(8px,2vw,16px));
+  }
+}
+/* Ввод центрируется внутри своей области: в левой колонке на широком
+   экране и в собственном блоке на промежуточных и узких. */
+/* Ввод — база для фланца: позиционируется на всех ширинах, иначе
+   фланец считал бы позицию от секции, а не от конца пояснения. */
+.benefits__intro{
+  position:relative;
+  max-width:min(100%,940px);
+  margin-bottom:clamp(32px,3.4vw,48px);
+  text-align:center;
+}
+.benefits__title{
+  font-size:clamp(1.625rem,3.15vw,3rem);
+  line-height:1.14;
+  font-weight:800;
+  letter-spacing:-.024em;
+}
+.benefits__lead{
+  margin-top:18px;
+  max-width:none;
+  font-size:clamp(1rem,1.18vw,1.125rem);
+  line-height:1.6;
+  color:var(--graphite-soft);
+}
+
+/* Сетка результатов. Все величины секции — через переменные,
+   чтобы геометрия направляющей не зависела от координат экрана. */
+.benefits__groups{
+  --ben-gap:clamp(16px,1.6vw,24px);      /* промежуток между панелями */
+  position:relative;
+  z-index:1;
+  display:grid;
+  grid-template-columns:minmax(0,1fr);
+  align-items:start;
+  gap:var(--ben-gap);
+}
+
+/* Панель результата: непрозрачная поверхность, тонкая стальная рамка,
+   прямые углы, ровные внутренние отступы. Без серебра и теней. */
+.benefit-group{
+  position:relative;
+  z-index:1;
+  padding:clamp(20px,1.6vw,24px);
+  background:var(--neutral-bg-alt);
+  border:1px solid var(--steel-line);
+  border-radius:var(--radius);
+}
+/* Угловые метки 20×20px с отступом 5px, толщина 2px — спокойнее, чем
+   в панелях направлений: панель статична, реакции у неё нет. */
+.benefit-group::before,
+.benefit-group::after{
+  content:"";
+  position:absolute;
+  width:20px;
+  height:20px;
+  pointer-events:none;
+  /* Цвет задан один раз здесь; ниже только отступы и набор сторон:
+     сокращение border-top без цвета сбросило бы его на currentColor. */
+  border-style:solid;
+  border-width:2px;
+  border-color:var(--steel-400);
+  opacity:.9;
+  transition:opacity .18s ease,border-color .18s ease;
+}
+.benefit-group::before{
+  top:5px;
+  left:5px;
+  border-right-width:0;
+  border-bottom-width:0;
+}
+.benefit-group::after{
+  right:5px;
+  bottom:5px;
+  border-top-width:0;
+  border-left-width:0;
+}
+/* Внутренняя рамка панели: отступ 6px от внешней границы, толщина 1px.
+   В обычном состоянии прозрачна и не видна — панель не выглядит
+   вложенным прямоугольником. Отдельный декоративный слой, поэтому
+   не конфликтует с угловыми ::before/::after и ничего не перекрывает:
+   текст начинается ниже поля отступов. */
+.benefit-group__frame{
+  position:absolute;
+  inset:6px;
+  border:1px solid transparent;
+  pointer-events:none;
+  transition:border-color .18s ease;
+}
+
+/* Заголовок группы: та же акцентная типографика, что принята ранее.
+   Длинные названия переносятся естественно, межбуквенный интервал
+   не увеличивается. Внутренней рамки нет: она создала бы второй
+   прямоугольник того же контраста, что и рамка панели. */
+.benefit-group__title{
+  padding-bottom:12px;
+  margin-bottom:14px;
+  border-bottom:1px solid var(--line);
+  font-size:13px;
+  font-weight:800;
+  letter-spacing:.11em;
+  text-transform:uppercase;
+  color:var(--amber);
+}
+.benefit-group__list{
+  list-style:none;
+}
+/* Между результатами — понятный вертикальный промежуток и спокойный
+   разделитель. После последнего результата ни линии, ни пустоты. */
+.benefit{
+  padding-block:16px;
+  border-bottom:1px solid var(--line-soft);
+}
+.benefit-group__list .benefit:first-child{padding-top:0}
+.benefit-group__list .benefit:last-child{
+  padding-bottom:0;
+  border-bottom:0;
+}
+.benefit__title{
+  font-size:17px;
+  font-weight:700;
+  line-height:1.32;
+  letter-spacing:-.01em;
+  margin-bottom:6px;
+}
+/* Описание занимает всю внутреннюю ширину панели: искусственного
+   предела больше нет. Выравнивание левое, размеры шрифта и
+   межстрочный интервал прежние. */
+.benefit__text{
+  max-width:none;
+  font-size:15px;
+  line-height:1.55;
+  color:var(--muted);
+}
+
+/* Панели идут строго в одну колонку на всех ширинах: высота каждой
+   задана содержимым, короткая «Правовые вопросы и риски» не
+   растягивается. Порядок групп — DOM-порядок, без перестановок. */
+
+/* От 1280px: ввод слева (34% / 66%), четыре панели справа
+   в одну колонку во всю ширину правой области. Ось направляющей
+   переносится на левую границу этой правой колонки. */
+@media (min-width:1280px){
+  .benefits__body{
+    display:grid;
+    grid-template-columns:minmax(0,34fr) minmax(0,66fr);
+    gap:0 var(--ben-col-gap);
+    align-items:start;
+  }
+  .benefits__intro{
+    max-width:none;
+    margin-bottom:0;
+  }
+  /* Левая граница панелей = левая граница контейнера + левая доля
+     сетки 34fr + промежуток. Промежуток входит в долю только частично,
+     поэтому вычитается из неё, а не прибавляется целиком. */
+  .benefits{
+    --ben-num-col:calc(34 / 100 * (var(--ben-cont-w)
+                              - 2 * var(--ben-cont-pad)
+                              - var(--ben-col-gap))
+                      + var(--ben-col-gap));
+  }
+}
+
+/* Ниже 1280px ввод сверху, панели во всю ширину контейнера:
+   свободной левой области под вводом нет, поэтому фланец
+   скрывается, а не накладывается на текст. */
+@media (max-width:1279px){
+  .benefits__flange{display:none}
+}
+
+/* Mobile: внутренний отступ контейнера и полосы — как в блоке D,
+   иначе ось полосы ушла бы от панелей на ширину этой разницы. */
+@media (max-width:639px){
+  .benefits{
+    --ben-cont-pad:18px;
+    --ben-rail:24px;
+    --ben-axis-num:26px;                    /* половина --dir-num (52px) */
+  }
+}
+
+/* Наведение — только для устройств с точным указателем.
+   Панель информационная: без подъёма, наклона, следа за мышью,
+   курсора и новых теней. Проявляется внутренняя рамка и
+   усиливаются угловые метки. Под reduced-motion переходы
+   обнуляются общим правилом файла, финальные цвета
+   применяются сразу. */
+@media (hover:hover) and (pointer:fine){
+  .benefit-group:hover::before,
+  .benefit-group:hover::after{
+    opacity:1;
+    border-color:var(--steel-700);
+  }
+  .benefit-group:hover .benefit-group__frame{
+    border-color:var(--steel-400);
+  }
+}
+
+/* ==========================================================================
+   F. ВНЕДРЕНИЕ — четыре этапа
+   Тёмная полоса с горизонтальным маршрутом на широких экранах
+   и вертикальным на узких. Маршрут декоративный: линия и маркеры
+   живут в отступах, вне текстовой области, и не получают фокус.
+   Без карточек, теней, иконок, фото и анимации.
+   ========================================================================== */
+
+.rollout{
+  background:var(--steel-900);
+  color:#fff;
+  padding-block:clamp(102.4px,14.4vw,192px);   /* воздух между секциями −20%: 128/18/240 → 102.4/14.4/192 */
+  /* Тёмная секция, светлые карточки. Внешние отступы приняты в
+     предыдущем пакете и больше не меняются. Внутренняя система
+     отступов карточек — общая переменная, чтобы нос, поля и
+     радиус зазора считались от одного значения. */
+  --roll-pad:22px;
+  /* Глубина стрелочного выступа. Вся правая грань карточки — это
+     диагонали от правых углов к центральному наконечнику, поэтому
+     выступ задаёт всю форму стрелки, а не отдельный пруток. */
+  --roll-nose:24px;
+  /* Зазор между карточками: выступ должен помещаться в него целиком
+     и оставаться видимым, поэтому он больше длины выступа. */
+  --roll-gap:calc(var(--roll-nose) + 12px);
+  --roll-surface:var(--neutral-bg);          /* светлая нейтральная панель */
+  /* Акцент на светлой карточке. --amber даёт здесь 4.32:1 и не
+     проходит, поэтому для надписи взят более тёмный тон того же
+     семейства: 4.91:1 на --neutral-bg и 4.61:1 на --neutral-bg-alt. */
+  --roll-accent:#9c5c00;
+  /* Внутренний контур. Он же контур наведения у принятой карточки
+     результата: там рамка в normal прозрачная, а цвет появляется
+     только на hover. Отступ 6px и толщина полосы 1px — как там же. */
+  --roll-frame-inset:6px;
+  --roll-frame-line:1px;
+  --roll-frame:var(--steel-400);            /* холодный голубовато-стальный */
+  /* Доля диагонали, на которой живёт постоянный акцент наконечника.
+     k = 1 — это вся диагональ внутреннего контура: в ряду от верхнего
+     и нижнего правого угла рамки до наконечника, в цепочке — от
+     нижних углов до нижнего наконечника. Задаётся долей, потому что
+     длина отрезка вдоль прямой, угол которой зависит от высоты
+     карточки, через CSS не выражается: k = 1 даёт ровно нужную
+     длину при любой высоте, а промежуточные значения — укороченный
+     вариант того же самого луча. */
+  --roll-tip-k:1;
+  --roll-mark-line:2px;                    /* как линия уголка */
+}
+.rollout .eyebrow{color:var(--amber-light)}
+
+/* Ввод секции центрируется по всей контентной ширине секции,
+   а не по прежней левой колонке. Ширина заголовка взята с
+   запасом, чтобы переносы оставались естественными. */
+.rollout__intro{
+  max-width:min(100%,860px);
+  margin-inline:auto;
+  text-align:center;
+  margin-bottom:clamp(40px,5vw,64px);
+}
+.rollout__title{
+  font-size:clamp(1.625rem,3.15vw,3rem);
+  line-height:1.14;
+  font-weight:800;
+  letter-spacing:-.024em;
+}
+/* Перенос заголовка. На desktop и планшете — две смысловые строки
+   с тире в конце первой. Текст один и тот же: на мобильном части
+   остаются inline и переносятся естественно, без обрезки и без
+   уменьшения кегля. */
+.rollout__title-part{display:inline}
+@media (min-width:900px){
+  .rollout__title-part{display:block}
+}
+
+/* Шаги идут в одну последовательность. На широком экране — ряд,
+   ниже брейкпоинта — вертикальная цепочка; и то и другое задаётся
+   одной сеткой, а стрелочный силуэт переключается вместе с ней. */
+.rollout__track{
+  position:relative;
+  list-style:none;
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:var(--roll-gap);
+  align-items:stretch;
+}
+
+/* Карточка информационная: без ссылки, без tabindex, без курсора.
+   Размеры не меняются ни в одном состоянии, поэтому соседние шаги
+   не сдвигаются, а текст не обрезается: высоту задаёт содержимое,
+   а в ряду все карточки выравниваются по самой высокой.
+
+   Выступ карточки не входит в текстовую колонку, поэтому поля
+   симметричны и текстовая ширина не съедается запасом справа. */
+.rollout__step{
+  position:relative;
+  padding:calc(var(--roll-pad) + 1px);
+  color:var(--graphite);
+}
+
+/* Светлая стрелочная поверхность — один декоративный слой.
+   Форма цельная: верхняя грань доходит до правого верхнего угла,
+   от него идёт диагональ к центральному наконечнику, от
+   наконечника — симметричная диагональ к правому нижнему углу, и
+   только потом нижняя грань. Коротких вертикальных отрезков у
+   правого края нет, поэтому карточка читается как одна широкая
+   стрелка, а не как прямоугольник с маленьким выступом.
+
+   Наружной обводки у слоя нет: в normal внешний край — только
+   естественная граница светлой карточки с тёмным фоном секции.
+
+   clip-path применён только к декоративному слою: контейнер с
+   текстом не обрезается, область взаимодействия не меняется. */
+.rollout__step::before{
+  content:"";
+  position:absolute;
+  z-index:0;
+  inset:0 calc(-1 * var(--roll-nose)) 0 0;
+  pointer-events:none;
+  background:var(--roll-surface);
+  clip-path:polygon(0 0,
+                    calc(100% - var(--roll-nose)) 0,
+                    100% 50%,
+                    calc(100% - var(--roll-nose)) 100%,
+                    0 100%);
+}
+
+/* Внутренний контур наведения. Рисуется не линиями по граням, а
+   разностью двух вложенных силуэтов: внешний слой залит цветом
+   контура и обрезан по силуэту, отступлённому от карточки на
+   --roll-frame-inset, а слой .rollout__frame поверх него залит
+   цветом поверхности и обрезан по тому же силуэту, отступлённому
+   ещё на --roll-frame-line. В полосе между ними остаётся ровно
+   1px по всему периметру, включая диагонали и наконечник, при
+   любой ширине и высоте карточки: стыков граней, которые надо
+   было бы сить вручную, здесь нет вообще.
+
+   Диагонали уходят вбок на ту же величину, что и прямые грани, а
+   не по нормали: боковины наконечника пологие, и такое смещение
+   отличается от перпендикулярного меньше чем на 0.15px.
+
+   В normal оба слоя прозрачны, поэтому серого контура не видно
+   нигде, включая диагонали и наконечник. */
+.rollout__step::after{
+  content:"";
+  position:absolute;
+  z-index:1;
+  inset:0 calc(-1 * var(--roll-nose)) 0 0;
+  pointer-events:none;
+  background:var(--roll-frame);
+  opacity:0;
+  transition:opacity .18s ease;
+  clip-path:polygon(var(--roll-frame-inset) var(--roll-frame-inset),
+                    calc(100% - var(--roll-nose) - var(--roll-frame-inset))
+                      var(--roll-frame-inset),
+                    calc(100% - var(--roll-frame-inset)) 50%,
+                    calc(100% - var(--roll-nose) - var(--roll-frame-inset))
+                      calc(100% - var(--roll-frame-inset)),
+                    var(--roll-frame-inset) calc(100% - var(--roll-frame-inset)));
+}
+/* Слой, вырезающий середину контура: оставляет только полосу.
+   Он всегда непрозрачен, и в этом весь смысл: если бы он тоже
+   проявлялся при наведении, то в промежуточных состояниях синий
+   слой просвечивал бы сквозь светлый — карточка коротко темнела
+   раньше, чем появлялся контур. Постоянно закрытый центр убирает
+   это явление: анимируется только заливка контура.
+
+   Он должен быть выше ::after, иначе заливка контура перекроет
+   вырез и карточка станет синей целиком: псевдоэлемент ::after
+   рисуется после содержимого элемента, поэтому при равном z-index
+   он оказался бы сверху. */
+.rollout__frame{
+  position:absolute;
+  z-index:2;
+  inset:0 calc(-1 * var(--roll-nose)) 0 0;
+  pointer-events:none;
+  background:var(--roll-surface);
+  clip-path:polygon(calc(var(--roll-frame-inset) + var(--roll-frame-line))
+                      calc(var(--roll-frame-inset) + var(--roll-frame-line)),
+                    calc(100% - var(--roll-nose) - var(--roll-frame-inset)
+                         - var(--roll-frame-line))
+                      calc(var(--roll-frame-inset) + var(--roll-frame-line)),
+                    calc(100% - var(--roll-frame-inset) - var(--roll-frame-line)) 50%,
+                    calc(100% - var(--roll-nose) - var(--roll-frame-inset)
+                         - var(--roll-frame-line))
+                      calc(100% - var(--roll-frame-inset) - var(--roll-frame-line)),
+                    calc(var(--roll-frame-inset) + var(--roll-frame-line))
+                      calc(100% - var(--roll-frame-inset) - var(--roll-frame-line)));
+}
+
+
+/* Постоянное выделение диагоналей внутреннего контура: две линии по
+   ВСЕЙ длине диагоналей силуэта, от угла внутренней рамки до
+   центрального наконечника. Это выделение существующих диагоналей,
+   а не отдельная иконка угла внутри карточки: линии лежат на самих
+   диагоналях, с тем же отступом 6px, что и контур.
+
+   Угол между линиями не задан: он складывается из настоящих
+   диагоналей силуэта, поэтому в ряду это «>», в цепочке «∨».
+   Толщина задана по горизонтали (в ряду) и по вертикали (в цепочке) —
+   там, где линия идёт почти вдоль этой оси, такое смещение отличается
+   от перпендикулярного меньше чем на 0.05px.
+
+   У наконечника лучи сходятся на полной толщине --roll-mark-line, как
+   линия уголка, и к своему концу плавно сходят до толщины контура.
+   Поэтому наведение не добавляет второй линии: акцент уже лежит
+   ровно на месте диагонали контура и просто перекрывает её, а его
+   внешняя граница совпадает с внешней границей контура — смещения
+   нет. Первая и последняя точки совпадают с углами внутренней
+   рамки, поэтому прямые грани и диагонали смыкаются без просвета.
+
+   Постоянный, виден всегда, включая touch, и не зависит от
+   наведения: появляются только остальные грани контура. */
+.rollout__tip-mark{
+  position:absolute;
+  z-index:3;
+  inset:0 calc(-1 * var(--roll-nose)) 0 0;
+  pointer-events:none;
+  background:var(--roll-frame);
+  --roll-tip-x:calc(var(--roll-nose) * var(--roll-tip-k));
+  --roll-tip-y:calc((50% - var(--roll-frame-inset)) * var(--roll-tip-k));
+  clip-path:polygon(
+    calc(100% - var(--roll-frame-inset)) 50%,
+    calc(100% - var(--roll-frame-inset) - var(--roll-tip-x))
+      calc(50% - var(--roll-tip-y)),
+    calc(100% - var(--roll-frame-inset) - var(--roll-tip-x)
+         - var(--roll-frame-line))
+      calc(50% - var(--roll-tip-y)),
+    calc(100% - var(--roll-frame-inset) - var(--roll-mark-line)) 50%,
+    calc(100% - var(--roll-frame-inset) - var(--roll-tip-x)
+         - var(--roll-frame-line))
+      calc(50% + var(--roll-tip-y)),
+    calc(100% - var(--roll-frame-inset) - var(--roll-tip-x))
+      calc(50% + var(--roll-tip-y)));
+}
+
+/* Единственный угловой акцент — верхний левый, тот же L-образный
+   знак, что на принятой карточке результата: 20×20px, толщина 2px,
+   цвет --steel-400, при наведении янтарный. Стоит ровно в углу
+   контура, поэтому читается как его продолжение, а не как
+   отдельная метка внутри карточки. Нижнего и каких-либо меток на
+   носу нет. */
+.rollout__corner{
+  position:absolute;
+  z-index:4;
+  top:var(--roll-frame-inset);
+  left:var(--roll-frame-inset);
+  width:20px;
+  height:20px;
+  border-style:solid;
+  border-width:2px;
+  border-right-width:0;
+  border-bottom-width:0;
+  border-color:var(--steel-400);
+  pointer-events:none;
+  transition:border-color .18s ease;
+}
+
+/* Содержимое над декоративными слоями. */
+.rollout__label,
+.rollout__step-title,
+.rollout__text{position:relative;z-index:5}
+
+.rollout__label{
+  display:block;
+  margin-bottom:10px;
+  font-size:12.5px;
+  font-weight:800;
+  letter-spacing:.13em;
+  text-transform:uppercase;
+  color:var(--roll-accent);
+}
+.rollout__step-title{
+  font-size:17.5px;
+  font-weight:700;
+  line-height:1.3;
+  letter-spacing:-.012em;
+  margin-bottom:8px;
+  color:var(--graphite);
+}
+.rollout__text{
+  max-width:40ch;
+  font-size:15px;
+  line-height:1.55;
+  color:var(--muted);
+}
+
+/* Наведение — внутренний контур, как на принятой карточке
+   результата: там рамка в normal прозрачная, а цвет появляется
+   только на hover. Внешний край не меняется: светлая форма и
+   светлая полоса между контуром и краем остаются на месте.
+   Анимируется только ::after — заливка контура; закрывающий слой
+   .rollout__frame непрозрачен всегда, поэтому поверхность не
+   темнеет ни в одном промежуточном состоянии. Постоянный акцент
+   наконечника и уголок не меняют толщину и не дублируются.
+   Никакого подъёма, масштаба, вращения, теней и смены размеров:
+   карточка информационная, а не кнопка. Правило закрыто проверкой
+   hover и pointer, поэтому на касании контур не залипает. */
+@media (hover:hover) and (pointer:fine){
+  .rollout__step:hover::after{opacity:1}
+  .rollout__step:hover .rollout__corner{border-color:var(--roll-accent)}
+}
+
+/* Вертикальная цепочка. Выступа выходит из принятого четырёх-
+   колоночного ряда по фактической вместимости текста: при 1200px
+   карточка уже 270px, а заголовок «Информирование сотрудников»
+   переносится на две строки; при 1199px карточка падает до 250px,
+   и дальше четыре колонки уже не читаются как последовательность.
+
+   Нос перенаправляется вниз и остаётся частью формы карточки:
+   теперь это выступ нижней грани, поэтому диагонали идут от левого
+   и правого нижних углов к центральному нижнему наконечнику — та же
+   цельная форма, что в ряду. */
+@media (max-width:1199px){
+  .rollout__track{
+    grid-template-columns:minmax(0,1fr);
+    gap:calc(var(--roll-nose) + 12px);
+  }
+  .rollout__step::before{
+    inset:0 0 calc(-1 * var(--roll-nose)) 0;
+    clip-path:polygon(0 0,
+                      100% 0,
+                      100% calc(100% - var(--roll-nose)),
+                      50% 100%,
+                      0 calc(100% - var(--roll-nose)));
+  }
+  /* Контур разворачивается вместе с силуэтом: те же два вложенных
+     отступления, только наконечник теперь внизу. */
+  .rollout__step::after{
+    inset:0 0 calc(-1 * var(--roll-nose)) 0;
+    clip-path:polygon(var(--roll-frame-inset) var(--roll-frame-inset),
+                      calc(100% - var(--roll-frame-inset)) var(--roll-frame-inset),
+                      calc(100% - var(--roll-frame-inset))
+                        calc(100% - var(--roll-nose) - var(--roll-frame-inset)),
+                      50% calc(100% - var(--roll-frame-inset)),
+                      var(--roll-frame-inset)
+                        calc(100% - var(--roll-nose) - var(--roll-frame-inset)));
+  }
+  .rollout__frame{
+    inset:0 0 calc(-1 * var(--roll-nose)) 0;
+    clip-path:polygon(calc(var(--roll-frame-inset) + var(--roll-frame-line))
+                        calc(var(--roll-frame-inset) + var(--roll-frame-line)),
+                      calc(100% - var(--roll-frame-inset) - var(--roll-frame-line))
+                        calc(var(--roll-frame-inset) + var(--roll-frame-line)),
+                      calc(100% - var(--roll-frame-inset) - var(--roll-frame-line))
+                        calc(100% - var(--roll-nose) - var(--roll-frame-inset)
+                             - var(--roll-frame-line)),
+                      50% calc(100% - var(--roll-frame-inset) - var(--roll-frame-line)),
+                      calc(var(--roll-frame-inset) + var(--roll-frame-line))
+                        calc(100% - var(--roll-nose) - var(--roll-frame-inset)
+                             - var(--roll-frame-line)));
+  }
+  /* Акцент наконечника разворачивается вместе с силуэтом: теперь
+     лучи идут от левого и правого нижних углов к центральному
+     нижнему наконечнику. В цепочке боковины пологие, поэтому
+     толщина задаётся по вертикали — там она и есть перпендикуляр
+     к лучам; по горизонтали она была бы в семь раз тоньше и
+     сходилась бы в ноль у наконечника. */
+  .rollout__tip-mark{
+    inset:0 0 calc(-1 * var(--roll-nose)) 0;
+    --roll-tip-x:calc((50% - var(--roll-frame-inset)) * var(--roll-tip-k));
+    --roll-tip-y:calc(var(--roll-nose) * var(--roll-tip-k));
+    clip-path:polygon(
+      50% calc(100% - var(--roll-frame-inset)),
+      calc(50% - var(--roll-tip-x))
+        calc(100% - var(--roll-frame-inset) - var(--roll-tip-y)),
+      calc(50% - var(--roll-tip-x))
+        calc(100% - var(--roll-frame-inset) - var(--roll-tip-y)
+             - var(--roll-frame-line)),
+      50% calc(100% - var(--roll-frame-inset) - var(--roll-mark-line)),
+      calc(50% + var(--roll-tip-x))
+        calc(100% - var(--roll-frame-inset) - var(--roll-tip-y)
+             - var(--roll-frame-line)),
+      calc(50% + var(--roll-tip-x))
+        calc(100% - var(--roll-frame-inset) - var(--roll-tip-y)));
+  }
+  /* В цепочке тексту нужно больше ширины, а не меньше. */
+  .rollout__text{max-width:62ch}
+}
+
+/* Mobile <640: та же вертикальная цепочка, поле меньше. */
+@media (max-width:639px){
+  .rollout{--roll-pad:18px}
+  .rollout__track{gap:calc(var(--roll-nose) + 10px)}
+}
+
+/* ==========================================================================
+   G. ВОПРОСЫ ПЕРЕД НАЧАЛОМ
+   Нативные details/summary: вся строка — область нажатия, Enter/Space
+   и фокус работают браузером. Одновременно открыт максимум один ответ —
+   это дописывает локальный скрипт в main.js, second state mechanism не
+   вводится. Индикатор — две CSS-линии с пустым content: в закрытом виде
+   плюс, в открытом вертикальная исчезает и остаётся минус. Псевдоэлементы
+   не имеют доступного представления, поэтому иконка не читается
+   вспомогательными технологими.
+   Без карточек, теней, градиентов, свечения и форм.
+   ========================================================================== */
+
+.faq-mini{
+  /* Декоративная полоса под вводом. Цвет — то же локальное значение, что у
+     принятой направляющей .benefits__rail (--amber 23% поверх прозрачного),
+     оформление самой benefits не меняется. */
+  --faq-band-fill:color-mix(in srgb,var(--amber) 23%,transparent);
+  --faq-band-thick:28px; /* толщина полосы */
+  --faq-band-gap:40px;   /* промежуток от низа заголовка до полосы */
+  /* Секция — содержащий блок полосы: по ширине она идёт от края до края
+     секции, поэтому 100vw не нужен и полоса прокрутки не учитывается. */
+  position:relative;
+  background:var(--neutral-bg);
+  padding-block:clamp(64px,9vw,120px);
+}
+
+/* Вводная обёртка занимает всю доступную ширину левой колонки сетки,
+   а заголовок центрируется внутри этой колонки: поэтому её max-width
+   снят, а текст выровнен по центру. Пропорции колонок (38fr / 62fr),
+   правый аккордеон, шрифт и межсекционные отступы не тронуты. */
+.faq-mini__intro{
+  max-width:none;
+  margin-bottom:clamp(32px,4vw,48px);
+  text-align:center;
+}
+.faq-mini__title{
+  font-size:clamp(1.625rem,3.15vw,3rem);
+  line-height:1.14;
+  font-weight:800;
+  letter-spacing:-.024em;
+}
+
+/* Горизонтальная полоса — фоновый слой, связывает левый ввод с правым
+   аккордеоном. Это ::after вводной обёртки, поэтому её статическая
+   позиция — нижняя граница заголовка: полоса привязана к заголовку, а не
+   к высоте секции или аккордеона, и не сдвигается при открытии ответа.
+   В поток не входит, поэтому высота секции не меняется. Идёт под
+   непрозрачными поверхностями вопросов и ответов (см. position у
+   .faq-mini__a), поэтому читается только на свободном фоне секции.
+   Клики не перехватывает, в клавиатурный фокус не попадает. */
+.faq-mini__intro::after{
+  content:"";
+  display:block;
+  position:absolute;
+  z-index:0;
+  left:0;
+  right:0;
+  margin-top:var(--faq-band-gap);
+  height:var(--faq-band-thick);
+  background:var(--faq-band-fill);
+  pointer-events:none;
+}
+
+/* Разделители — спокойная тонкая линия, один-в-один как была. */
+.faq-mini__item{
+  border-top:1px solid var(--line);
+}
+.faq-mini__list .faq-mini__item:last-child{
+  border-bottom:1px solid var(--line);
+}
+
+/* Строка вопроса — ровно тот же токен, что фон тёмной секции «Внедрение»:
+   var(--steel-900). Светлый текст на нём даёт 18.8:1.
+   Весь summary — область нажатия, не менее 44px по высоте.
+   Справа 58px под индикатор, поэтому на мобильном вопрос может
+   занять несколько строк и текст не наедет на иконку; слева 24px,
+   потому что строка стала тёмной панелью и текст больше не может
+   стоять вплотную к её краю. Поля не уменьшены — строка стала выше. */
+.faq-mini__q{
+  --faq-sign-size:19px; /* длина обеих линий значка */
+  --faq-sign-line:3px;  /* толщина обеих линий значка */
+  position:relative;
+  display:block;
+  min-height:44px;
+  padding:19px 58px 19px 24px;
+  font-size:clamp(1.0625rem,1.35vw,1.25rem);
+  font-weight:700;
+  line-height:1.34;
+  letter-spacing:-.012em;
+  color:#fff;
+  background:var(--steel-900);
+  cursor:pointer;
+  list-style:none;
+}
+.faq-mini__q::-webkit-details-marker{display:none}
+/* Стандартный маркер списка для движков без -webkit- префикса. */
+.faq-mini__q::marker{content:""}
+
+/* Индикатор: настоящий плюс из двух прямых перпендикулярных линий —
+   без диагонального поворота и без текстового символа (content пустой,
+   поэтому значок декоративный: у него нет своей кнопки, своего фокуса и
+   второго обработчика, область нажатия — вся строка summary).
+   Обе линии — боксы одинакового размера, поставленные от одной точки
+   (right/top) и сдвинутые на половину собственного размера, поэтому
+   центры у них совпадают по построению: пересечение ровно посередине
+   обеих линий, толщина и длина одинаковые. Вертикаль привязана к
+   принятой ранее отметке у первой строки длинного вопроса, а справа
+   под значок остаётся отдельная полоса поля 58px — многострочный
+   вопрос на него не наезжает.
+   Цвет — светлый янтарный токен палитры: на --steel-900 он даёт 8.8:1,
+   тогда как --amber обычной кнопки на том же фоне — 4.0:1, что для
+   тонкой линии читается слабо. Палитра кнопок не менялась. */
+.faq-mini__q::before,
+.faq-mini__q::after{
+  content:"";
+  position:absolute;
+  right:22px;
+  top:31px;
+  background:var(--amber-light);
+  transform:translate(50%,-50%);
+}
+.faq-mini__q::before{
+  width:var(--faq-sign-size);
+  height:var(--faq-sign-line);
+}
+.faq-mini__q::after{
+  width:var(--faq-sign-line);
+  height:var(--faq-sign-size);
+}
+/* В открытом состоянии вертикальная линия исчезает — остаётся минус. */
+.faq-mini__item[open] > .faq-mini__q::after{display:none}
+
+/* Ответ: белая поверхность во всю ширину колонки, тёмный текст.
+   Ширина ограничена текстом, а не панелью, иначе белое поле
+   обрывалось бы на 56ch. position — только чтобы непрозрачная белая
+   поверхность печаталась поверх декоративной полосы, стоящей позади; на
+   геометрию и отступы это не влияет. */
+.faq-mini__a{
+  position:relative;
+  padding:20px 58px 24px 24px;
+  background:#fff;
+}
+.faq-mini__a p{
+  max-width:56ch;
+  font-size:15px;
+  line-height:1.6;
+  color:var(--muted);
+}
+
+/* Desktop >=900px: асимметричные две колонки. Ниже — одна.
+   Заголовок центрируется по левой колонке, аккордеон остаётся в правой —
+   отдельной строки под заголовком нет, расстояния внутри сетки прежние. */
+@media (min-width:900px){
+  .faq-mini__body{
+    display:grid;
+    grid-template-columns:minmax(0,38fr) minmax(0,62fr);
+    gap:0 clamp(40px,5vw,80px);
+    align-items:start;
+  }
+  .faq-mini__intro{margin-bottom:0}
+}
+
+/* Ниже 900px раскладка одноколоночная, и полоса идёт под заголовком в уже
+   существующем промежутке перед аккордеоном (margin-bottom ввода), а не
+   во всю ширину секции: содержащим блоком становится сама обёртка, и
+   полоса занимает её контентную ширину. Толщина и промежуток компактные —
+   так она не наезжает ни на заголовок, ни на список вопросов и не
+   добавляет секции высоты. */
+@media (max-width:899px){
+  .faq-mini{
+    --faq-band-thick:24px;
+    --faq-band-gap:4px;
+  }
+  .faq-mini__intro{position:relative}
+}
+
+/* ==========================================================================
+   H. КОНТАКТЫ
+   Светлая основа, тонкая верхняя граница. Слева заголовок и текст,
+   справа три способа связи. Телефон — существующая металлическая кнопка,
+   почта и Telegram — текстовые ссылки. Без формы и декоративных полей.
+   ========================================================================== */
+
+.contact{
+  background:var(--neutral-bg-alt);
+  border-top:1px solid var(--line);
+  padding-block:clamp(64px,9vw,120px);
+}
+
+.contact__intro{
+  max-width:42ch;
+  margin-bottom:clamp(32px,4vw,48px);
+}
+.contact__title{
+  font-size:clamp(1.625rem,3.15vw,3rem);
+  line-height:1.14;
+  font-weight:800;
+  letter-spacing:-.024em;
+}
+
+/* Центрирование ввода — только на главной странице. Секция .contact и её
+   вводная обёртка общие с programs.html, поэтому правило ограничено
+   существующим контекстом главной страницы: блок вопросов .faq-mini есть
+   только на index.html, а .contact идёт в <main> сразу за ним.
+   Обёртка остаётся в левой колонке сетки .contact__body рядом с
+   контактами; собственный max-width сохранён, поэтому поясняющий текст не
+   растягивается, а margin-inline:auto ставит блок по центру колонки —
+   так заголовок и пояснение центрируются по ней. Пропорции колонок,
+   список контактов (он не центрируется), телефонная кнопка, ссылки,
+   размеры шрифтов и отступы секции не тронуты. */
+.faq-mini ~ .contact .contact__intro{
+  margin-inline:auto;
+  text-align:center;
+}
+/* Та же логика для контактного блока programs.html: там перед
+   секцией контактов идёт каталог, поэтому и отбирается она по соседству
+   с .cat-group, а не по .faq-mini. Правило на главной не расширяется:
+   у index.html предыдущая секция — .faq-mini, этот селектор там не
+   срабатывает, и принятый блок остаётся нетронутым. Ввод центрируется
+   внутри своей левой колонки (margin-inline:auto при max-width),
+   контакты справа сохраняют прежнее выравнивание. */
+.cat-group ~ .contact .contact__intro{
+  margin-inline:auto;
+  text-align:center;
+}
+.cat-group ~ .contact .contact__text{margin-inline:auto}
+.contact__text{
+  max-width:46ch;
+  margin-top:18px;
+  font-size:clamp(1rem,1.18vw,1.125rem);
+  line-height:1.6;
+  color:var(--graphite-soft);
+}
+
+.contact__list{
+  list-style:none;
+}
+.contact__item{
+  padding-block:20px;
+  border-top:1px solid var(--line);
+}
+.contact__list .contact__item:last-child{
+  border-bottom:1px solid var(--line);
+}
+.contact__label{
+  display:block;
+  margin-bottom:10px;
+  font-size:12.5px;
+  font-weight:800;
+  letter-spacing:.13em;
+  text-transform:uppercase;
+  color:var(--amber);
+}
+
+/* Область нажатия — не менее 44px по высоте на самой ссылке. */
+.contact__value{
+  display:inline-flex;
+  align-items:center;
+  min-height:44px;
+  font-size:17px;
+  font-weight:600;
+  line-height:1.3;
+  letter-spacing:-.005em;
+  color:var(--graphite);
+  text-decoration:none;
+}
+.contact__value--tel{font-size:19px;font-weight:700}
+/* Телефон — тот же компонент .btn, поэтому надпись светлая:
+   на медно-янтарной поверхности графит давал бы 3.81:1. */
+.contact__value--tel.btn{color:#fff}
+.contact__value--link{transition:color .18s ease}
+.contact__value--link:hover{color:var(--steel-500)}
+
+.contact__note{
+  display:block;
+  margin-top:6px;
+  font-size:13px;
+  line-height:1.4;
+  color:var(--muted);
+}
+
+/* Desktop >=900px: доли от остатка после gap, без переполнения. */
+@media (min-width:900px){
+  .contact__body{
+    display:grid;
+    grid-template-columns:minmax(0,55fr) minmax(0,45fr);
+    gap:0 clamp(40px,5vw,80px);
+    align-items:start;
+  }
+  .contact__intro{margin-bottom:0}
+}
+
+/* Mobile <640px: телефон на всю ширину колонки. */
+@media (max-width:639px){
+  .contact__value--tel{width:100%}
+}
+
+/* ==========================================================================
+   I. ФУТЕР
+   Компактный, графитовый. Название текстом: светлая подложка PNG-логотипа
+   на тёмном фоне не подходит. Контакты здесь не повторяются.
+   ========================================================================== */
+
+.site-footer{
+  background:var(--steel-900);
+  padding-block:34px;
+}
+.site-footer :focus-visible{outline-color:var(--amber-light)}
+
+.site-footer__inner{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  justify-content:space-between;
+  gap:18px 32px;
+}
+.site-footer__name{
+  font-size:17px;
+  font-weight:700;
+  letter-spacing:-.01em;
+  color:#fff;
+}
+.site-footer__copy{
+  max-width:64ch;
+  margin-top:6px;
+  font-size:13.5px;
+  line-height:1.5;
+  color:rgba(255,255,255,.55);
+}
+
+.site-footer__top{
+  display:inline-flex;
+  align-items:center;
+  gap:10px;
+  min-height:44px;
+  font-size:14.5px;
+  font-weight:600;
+  color:rgba(255,255,255,.78);
+  text-decoration:none;
+  transition:color .18s ease;
+}
+.site-footer__top:hover{color:#fff}
+/* Стрелка вверх: CSS-треугольник, content пустой, без анимации. */
+.site-footer__top::after{
+  content:"";
+  width:9px;
+  height:9px;
+  border-left:1px solid currentColor;
+  border-top:1px solid currentColor;
+  transform:translateY(2px) rotate(45deg);
+}
+
+@media (max-width:639px){
+  .site-footer__inner{
+    flex-direction:column;
+    align-items:flex-start;
+    gap:14px;
+  }
+}
+
+/* ==========================================================================
+   HERO СТРАНИЦЫ ПРОГРАММ — programs.html
+   Принцип принятого Hero главной, зеркальная композиция: фотография
+   занимает всю область секции, текст лежит поверх неё. Группа
+   сотрудников в кадре слева, текст справа — над спокойной тёмной
+   частью фотографии. Отдельной карточки с изображением и однотонной
+   панели справа нет: фон секции --steel-900 стоит только на время
+   загрузки кадра и как запасной цвет, в нормальном состоянии его не
+   видно, потому что изображение перекрывает всю область.
+   Классы локальные (.ph-hero*), общие селекторы Hero главной (.hero*)
+   не затрагиваются: правила этого блока ни с чем не пересекаются.
+
+   Геометрия кадра измерена по самому файлу 002.png: группа занимает
+   левые ~63% ширины кадра, дальше идёт тёмная стена помещения. Отсюда
+   и кадрирование, и ширина текстовой колонки: текст начинается правее
+   63% кадра и целиком стоит на тёмной стене, поэтому лица и руки не
+   перекрыты ни заголовком, ни пояснением, ни кнопкой. Ширина колонки
+   задана формулой от ширины окна, а не числом пикселей, поэтому при
+   любой ширине она остаётся внутри тёмной зоны.
+
+   Затемнение локальное и слабое: градиент к правому краю и вниз под
+   кнопку, слева он почти прозрачен — тепло сцены и лица открыты,
+   заметной подложки под текстом нет. Читаемость обеспечивает сама
+   тёмная стена кадра: её средняя яркость около 30 из 255, то есть
+   контраст белого текста на ней выше 12:1 и без затемнения.
+
+   Высота не задана: её дают текст и отступы, поэтому каталог не
+   отодвигается далеко вниз. Ниже 1180px тёмной зоны кадра справа уже
+   не хватает для колонки текста, и композиция меняется на мобильную:
+   фотография отдельным блоком сверху во всю ширину, текст ниже на
+   сплошном фоне секции. Секция остаётся одной, фотография остаётся её
+   основой, лица открыты, текст ни с чем не пересекается.
+   ========================================================================== */
+
+.ph-hero{
+  position:relative;
+  isolation:isolate;
+  overflow:hidden;
+  color:#fff;
+  background:var(--steel-900);
+}
+/* Фотография — абсолютный слой на всю область секции, как в Hero
+   главной. z-index:-2 при isolation:isolate на секции уводит её под
+   текст, но над фоном; отдельной карточки и рамки нет. */
+.ph-hero__media{
+  position:absolute;
+  inset:0;
+  z-index:-2;
+}
+/* <picture> — промежуточный бокс между секцией и <img>, поэтому
+   размеры задаются на нём явно. Иначе height:100% у картинки
+   разрешается от auto-высоты <picture>, и высота кадра уезжает от
+   высоты секции. display:block убран у самой картинки, чтобы
+   <picture> не добавлял к её базовой линии лишние 4px. */
+.ph-hero__media picture{display:block; width:100%; height:100%}
+/* object-position:50% 30% — кадр шире секции, поэтому при cover
+   режется высота, а не ширина: группа остаётся целиком и без
+   отражения. Сдвиг вверх держит лица в верхней трети кадра, а под
+   ними остаётся тёмная зона под текст. */
+.ph-hero__image{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  object-position:50% 30%;
+  transform:none;
+}
+
+.ph-hero__scrim{
+  position:absolute;
+  inset:0;
+  z-index:-1;
+  /* Два слоя, как у Hero главной: к правому краю, где текст, и
+     вертикальный — под кнопку и к нижней кромке кадра.
+     Горизонтальный градиент отсчитывается справа и набирает силу
+     ровно там, где начинается колонка текста: её левая граница
+     держится на 35% ширины Hero при любой ширине окна, потому что
+     ширина колонки задана формулой от той же ширины. Дальше влево
+     слой гаснет до нуля к 45% — группа остаётся в исходной яркости,
+     а правее колонки темнота держится до самого края.
+     Насколько это допустимо, проверено по кадру: собственная яркость
+     стены в этой зоне около 30 из 255, а под колонкой текста с этим
+     градиентом контраст белого получается выше 10:1. */
+  background:
+    linear-gradient(270deg,
+      rgba(8,12,18,.60) 0%,
+      rgba(8,12,18,.58) 28%,
+      rgba(8,12,18,.56) 32%,
+      rgba(8,12,18,.52) 34.5%,
+      rgba(8,12,18,.48) 36%,
+      rgba(8,12,18,.26) 38%,
+      rgba(8,12,18,.05) 41%,
+      rgba(8,12,18,0) 46%,
+      rgba(8,12,18,0) 100%),
+    linear-gradient(180deg,
+      rgba(8,12,18,.30) 0%,
+      rgba(8,12,18,0) 22%,
+      rgba(8,12,18,0) 58%,
+      rgba(8,12,18,.42) 100%);
+}
+
+/* Контент секции: колонка текста прижата вправо, к правой границе
+   контейнера. */
+.ph-hero__inner{
+  position:relative;
+  display:flex;
+  justify-content:flex-end;
+  padding-block:clamp(44px,5.4vw,64px);
+}
+.ph-hero__text{
+  /* Правая граница колонки = 63.7% ширины окна минус поле контейнера:
+     левее этой отметки в кадре находится группа людей. Две ветви в
+     min() — это ширина тёмной зоны при контейнере уже 1240px и при
+     более узком окне; -40px и -0.137 вместо точных значений берут
+     запас на полосу прокрутки и на кромку кадра. Нижняя граница
+     clamp() не должна быть выше расчётной ширины: на 2560px тёмная
+     зона уже 229px, и floor в 300px наезжал на крайнего человека
+     справа. 220px — это предел, ниже которого текст не становится. */
+  width:clamp(220px, min(0.363 * 100vw - 40px, 580px - 0.137 * 100vw), 520px);
+}
+.ph-hero__title{
+  font-size:clamp(1.75rem,3.05vw,2.9rem);
+  line-height:1.08;
+  font-weight:800;
+  letter-spacing:-.028em;
+  max-width:17ch;
+}
+.ph-hero__lead{
+  margin-top:clamp(16px,1.8vw,24px);
+  max-width:48ch;
+  font-size:clamp(1rem,1.12vw,1.125rem);
+  line-height:1.6;
+  /* 88% белого вместо 80%: под текстом лежит фотография, и по реальным
+     пикселям кадра этого достаточно для контраста выше 4.5:1 —
+     замеренный худший случай 6.5:1 на 1440 и 1280, 5.6:1 на 1180. */
+  color:rgba(255,255,255,.88);
+}
+/* Единственное действие Hero — оставить заявку. Это принятая
+   медно-янтарная .btn целиком: геометрия, кромка, срез, тень, hover и
+   focus берутся из существующего компонента, здесь только раскладка. */
+.ph-hero__cta{
+  display:flex;
+  flex-wrap:wrap;
+  gap:12px;
+  margin-top:clamp(26px,3.2vw,36px);
+}
+/* Тёмный фон секции: индикатор фокуса — как у Hero главной. */
+.ph-hero .btn:focus-visible{outline-color:var(--amber-light)}
+
+/* Сверх 2044px расчётная ширина колонки уходит уже 300px, а длинное
+   слово заголовка («сотрудников», 6.314em при трекинге -0.028em)
+   перестаёт в неё помещаться. От 2044px размер берётся от самой
+   колонки: -(W - 10px) / 6.314, W = 580px - 0.137 * 100vw.
+   На 1440/1280/1600/1920px правило не действует. */
+@media (min-width:2044px){
+  .ph-hero__title{
+    font-size:calc((568px - 0.137 * 100vw) / 6.314);
+  }
+}
+
+/* Ниже 1180px тёмной зоны кадра справа уже не хватает для колонки
+   текста, поэтому композиция меняется на мобильную: фотография
+   отдельным блоком сверху во всю ширину, текст ниже на сплошном фоне
+   секции. Секция остаётся одной, фотография остаётся её основой, лица
+   и руки открыты, текст ни с чем не пересекается. Кадр 16/9 =
+   собственные пропорции 1280×720, поэтому группа показывается целиком,
+   без обрезки и без принудительной высоты. */
+@media (max-width:1179px){
+  .ph-hero{display:block; background:var(--neutral-bg); color:var(--graphite)}
+  .ph-hero__media{
+    position:static;
+    z-index:auto;
+    aspect-ratio:16/9;
+  }
+  /* Мягкий переход нижней кромки кадра в фон секции — без затемнения
+     сцены целиком. */
+  .ph-hero__scrim{
+    inset:auto 0 0 0;
+    height:clamp(56px,14%,120px);
+    background:linear-gradient(180deg,
+      rgba(244,246,248,0) 0%,
+      rgba(244,246,248,0) 76%,
+      rgba(244,246,248,.85) 100%);
+  }
+  .ph-hero__inner{
+    display:block;
+    padding-block:clamp(40px,6vw,56px) clamp(44px,6vw,64px);
+  }
+  .ph-hero__text{
+    width:auto;
+    max-width:min(100%,560px);
+    margin-inline:auto;
+  }
+  .ph-hero__title{max-width:22ch}
+  /* На светлом фоне текст переключается на обычные цвета секции. */
+  .ph-hero__lead{color:var(--graphite-soft)}
+  .ph-hero .btn:focus-visible{outline-color:var(--graphite)}
+}
+
+/* Уже 640px: заголовок на всю ширину контейнера. */
+@media (max-width:639px){
+  .ph-hero__title{max-width:none}
+}
+
+/* ==========================================================================
+   P. КАТАЛОГ ПРОГРАММ — programs.html
+   Иерархия заголовков: h1 — Hero страницы, h2 — начало каталога
+   и категория, h3 — программа.
+   Название и теги слева, содержание справа; ниже 900px — одна колонка.
+   Без карточек, теней, фотографий, эмодзи и JS-рендеринга.
+   ========================================================================== */
+
+.cat-intro{
+  background:var(--neutral-bg);
+  padding-block:clamp(48px,7vw,88px) clamp(36px,5vw,56px);
+  /* Ввод каталога центрирован по всей контентной ширине: сам
+     текстовый блок уезжает на середину через margin-inline:auto,
+     а не растягивается и не прижимается к левому краю. Текст из
+     HTML не меняется — правило только центрирует. */
+  text-align:center;
+}
+.cat-intro__title{
+  max-width:22ch;
+  margin-inline:auto;
+  font-size:clamp(1.875rem,3.9vw,3.5rem);
+  line-height:1.08;
+  font-weight:800;
+  letter-spacing:-.028em;
+}
+.cat-intro__lead{
+  max-width:62ch;
+  margin:20px auto 0;
+  font-size:clamp(1rem,1.18vw,1.125rem);
+  line-height:1.6;
+  color:var(--graphite-soft);
+}
+
+/* Навигация по пяти категориям */
+.cat-nav{
+  background:var(--neutral-bg);
+  border-bottom:1px solid var(--line);
+  padding-bottom:clamp(30px,4vw,44px);
+  /* Навигация по категориям центрирована относительно контейнера:
+     подпись и сам ряд бейджей. Бейджи, тексты, счётчики, порядок и
+     href не тронуты. */
+  text-align:center;
+}
+.cat-nav__title{
+  margin-bottom:14px;
+  font-size:12.5px;
+  font-weight:800;
+  letter-spacing:.13em;
+  text-transform:uppercase;
+  color:var(--amber);
+}
+.cat-nav__list{
+  list-style:none;
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+  gap:10px;
+}
+.cat-nav__link{
+  display:inline-flex;
+  align-items:baseline;
+  gap:8px;
+  min-height:44px;
+  padding:11px 16px;
+  border:1px solid var(--line);
+  border-radius:0;
+  background:var(--neutral-bg-alt);
+  font-size:14.5px;
+  font-weight:600;
+  color:var(--graphite);
+  text-decoration:none;
+  transition:border-color .18s ease,color .18s ease;
+}
+.cat-nav__link:hover{
+  border-color:var(--steel-400);
+  color:var(--steel-500);
+}
+.cat-nav__count{
+  font-size:13px;
+  font-weight:700;
+  color:var(--steel-500);
+  font-variant-numeric:tabular-nums;
+}
+
+/* Категории: чередование светлых фонов */
+.cat-group{
+  background:var(--neutral-bg);
+  padding-block:clamp(44px,6vw,76px);
+}
+.cat-group--alt{background:var(--neutral-bg-alt)}
+
+.cat-group__head{
+  padding-bottom:14px;
+  margin-bottom:2px;
+  border-bottom:1px solid var(--line);
+}
+.cat-group__title{
+  font-size:clamp(1.375rem,2.4vw,2.125rem);
+  line-height:1.18;
+  font-weight:800;
+  letter-spacing:-.022em;
+}
+.cat-group__count{
+  display:block;
+  margin-top:8px;
+  font-size:12.5px;
+  font-weight:800;
+  letter-spacing:.13em;
+  text-transform:uppercase;
+  color:var(--amber);
+}
+
+/* Программа */
+.cat-item{
+  padding-block:26px;
+  border-bottom:1px solid var(--line-soft);
+}
+.cat-group .cat-item:last-child{border-bottom:0}
+
+.cat-item__title{
+  font-size:clamp(1.0625rem,1.5vw,1.375rem);
+  line-height:1.3;
+  font-weight:700;
+  letter-spacing:-.014em;
+}
+
+.cat-item__tags{
+  list-style:none;
+  display:flex;
+  flex-wrap:wrap;
+  gap:7px;
+  margin-top:14px;
+}
+.cat-tag{
+  display:inline-flex;
+  align-items:center;
+  padding:4px 10px;
+  border:1px solid var(--line);
+  border-radius:0;
+  font-size:12.5px;
+  font-weight:600;
+  line-height:1.4;
+  color:var(--graphite-soft);
+}
+
+.cat-item__desc{
+  max-width:70ch;
+  margin-top:16px;
+  font-size:16px;
+  line-height:1.6;
+  color:var(--graphite);
+}
+
+.cat-item__for{
+  max-width:70ch;
+  margin-top:14px;
+}
+.cat-item__for-label{
+  display:block;
+  margin-bottom:4px;
+  font-size:12px;
+  font-weight:800;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  color:var(--amber);
+}
+.cat-item__for-text{
+  font-size:14.5px;
+  line-height:1.5;
+  color:var(--muted);
+}
+
+/* Desktop >=900px: две доли оставшегося после gap пространства. */
+@media (min-width:900px){
+  .cat-item{
+    display:grid;
+    grid-template-columns:minmax(0,32fr) minmax(0,68fr);
+    gap:0 clamp(28px,3.5vw,56px);
+    align-items:start;
+  }
+  .cat-item__desc{margin-top:0}
+}
+
+/* ==========================================================================
+   КАТЕГОРИИ КАТАЛОГА — programs.html
+   Локальный компонент поверх общих .cat-group / .cat-item. Общие
+   правила каталога не меняются: все новые объявления отбирают
+   .cat-group--rows, поэтому ничего вне каталога не затрагивается.
+
+   Композиция одинаковая для всех пяти категорий, зеркалирования нет.
+   В начале категории — центрированный по всей контентной ширине
+   заголовок с количеством программ под ним (собственного вводного
+   описания у категорий в разметке нет, и оно не создаётся).
+   Каждая программа — отдельная строка: слева её H3, справа светлая
+   карточка содержания с тегами, описанием и блоком «Для кого».
+   Название из карточки вынесено и внутри неё не дублируется.
+   Порядок DOM: H3, затем карточка, затем следующая программа —
+   он же порядок чтения и фокуса; order и зеркальные области не
+   используются.
+
+   Пропорции колонок 33/67 и зазор между ними одинаковы во всех
+   строках и категориях; ширина колонок текучая, поэтому одна и та же
+   доля работает на любой ширине. Ниже 860px колонки складываются в
+   одну: H3 сверху, карточка под ним, дальше следующая программа.
+   Порог выбран по вместимости: при 861px на H3 остаётся около
+   259px, а на карточку — 494px, то есть описание получает
+   примерно 440px внутренней ширины. Ещё уже две колонки были бы
+   тесны, а на 320px и 375px названия и карточки читаются в одну
+   колонку без уменьшения шрифта.
+   ========================================================================== */
+
+.cat-group--rows{
+  /* Геометрия колонок и полосы хранится здесь, потому что полоса
+     позиционируется от левой границы светлой карточки — то есть от
+     той же сетки, что и сами строки. */
+  --cat-col-gap:clamp(32px,4.6vw,72px);
+  /* Доли хранятся вместе с единицей fr: значение 33 без fr внутри
+     minmax() не распознавалось браузером как flex-трек, и колонки
+     схлопывались в одну. */
+  --cat-title-pct:33;
+  --cat-title-fr:33fr;
+  --cat-card-fr:67fr;
+  /* Ширина полосы — принятая каталожная, диапазон тот же. */
+  --cat-rail:clamp(28px,2.1vw,32px);
+  /* Отступ оси полосы от левого края карточки внутрь её области.
+     Ориентир пользователя — около двух сантиметров; здесь он
+     выражен в адаптивных единицах и попадает в 48–64px на 1280–1440
+     и до 80px на самых широких экранах. */
+  --cat-rail-inset:clamp(34px,3.4vw,60px);
+  /* Материал полосы — тот же приглушённый янтарь 23%, что у принятой
+     полосы benefits на главной. */
+  --cat-rail-fill:color-mix(in srgb,var(--amber) 23%,transparent);
+  /* Нижнее поле секции повторяет правило .cat-group: полоса, как и
+     раньше, доходит до нижней границы категории, а не обрывается у
+     последней карточки. */
+  --cat-group-pad-block:clamp(44px,6vw,76px);
+  /* Материал карточки совпадает с фоном своей секции, чтобы
+     непрозрачная поверхность перекрывала полосу и вводила её в тон. */
+  /* Фон самой секции: им же перекрываются названия программ в одну
+     колонку. Значение повторяет правило .cat-group, потому что inherit
+     здесь берёт фон .container, а он прозрачный. */
+  --cat-section-bg:var(--neutral-bg);
+  --cat-card-bg:var(--neutral-bg-alt);
+  position:relative;
+}
+.cat-group--rows.cat-group--alt{
+  --cat-section-bg:var(--neutral-bg-alt);
+  --cat-card-bg:var(--neutral-bg);
+}
+
+/* Область программ: вводный блок категории в неё не входит, поэтому
+   верх полосы совпадает с верхней границей первой карточки, а низ — с
+   нижней границей секции. Высота задаётся содержимым, а не разметкой:
+   обёртка ничего не добавляет и не меняет. */
+.cat-group--rows .cat-group__body{
+  position:relative;
+}
+
+/* Полоса. По вертикали — от верхней границы первой карточки до нижней
+   границы категории: верхняя граница области программ и принятое нижнее
+   поле секции. Выше — в зоне заголовка категории и счётчика — янтарного
+   цвета нет. В следующую категорию не заходит, потому что
+   позиционируется от своей области. По горизонтали ось выведена из той
+   же сетки, что и строки: 100% — ширина области программ, то есть левая
+   колонка, зазор и отступ внутрь карточки. */
+.cat-group--rows .cat-group__rail{
+  position:absolute;
+  z-index:0;
+  top:0;
+  bottom:calc(-1 * var(--cat-group-pad-block));
+  left:calc(var(--cat-title-pct) / 100 * (100% - var(--cat-col-gap))
+            + var(--cat-col-gap)
+            + var(--cat-rail-inset));
+  width:var(--cat-rail);
+  background:var(--cat-rail-fill);
+  pointer-events:none;
+}
+
+/* Заголовок категории: по центру всей контентной ширины. Выше области
+   программ, поэтому полосы в этой полосе по вертикали уже нет. */
+.cat-group--rows .cat-group__head{
+  position:relative;
+  z-index:1;
+  padding-bottom:18px;
+  margin-bottom:clamp(28px,3vw,44px);
+  background-color:var(--cat-section-bg);
+  text-align:center;
+}
+
+/* Строка программы: две колонки, одинаковые во всех категориях. */
+.cat-group--rows .cat-item{
+  display:grid;
+  grid-template-columns:minmax(0,var(--cat-title-fr)) minmax(0,var(--cat-card-fr));
+  gap:0 var(--cat-col-gap);
+  align-items:start;
+  padding:0;
+  margin:0 0 var(--cat-row-gap);
+  border:0;
+}
+.cat-group--rows{--cat-row-gap:clamp(20px,2.4vw,32px)}
+.cat-group--rows .cat-item:last-child{margin-bottom:0}
+
+/* Название программы слева. Верхний отступ равен полю карточки, а
+   первая строка приподнята на полстроки, поэтому оптический центр
+   названия совпадает с центром первой содержательной строки карточки
+   (ряд тегов). Размер кегля — между принятым значением каталога
+   (17px) и заголовком карточки образца (22px): название теперь
+   самостоятельный заголовок строки, но насыщенность прежняя, 700. */
+.cat-group--rows .cat-item__title{
+  padding-top:calc(clamp(20px,1.6vw,26px) + 2px);
+  font-size:clamp(1.125rem,1.35vw,1.375rem);
+  line-height:1.28;
+  font-weight:700;
+  letter-spacing:-.012em;
+  color:var(--graphite);
+}
+
+/* Светлая карточка содержания справа: то же оформление принятого
+   образца «Семья и дети» — непрозрачная поверхность, прямые углы,
+   угловые акценты и внутренняя рамка при наведении. Рамка и углы
+   принадлежат карточке, а не всей строке с названием. */
+.cat-group--rows .cat-item__card{
+  position:relative;
+  z-index:1;
+  padding:clamp(20px,1.6vw,26px);
+  background:var(--cat-card-bg);
+  border:1px solid var(--steel-line);
+  border-radius:var(--radius);
+  box-shadow:none;
+  transform:none;
+  transition:none;
+}
+.cat-group--rows .cat-item__card::before,
+.cat-group--rows .cat-item__card::after{
+  content:"";
+  position:absolute;
+  width:20px;
+  height:20px;
+  pointer-events:none;
+  border-style:solid;
+  border-width:2px;
+  border-color:var(--steel-400);
+  opacity:.9;
+  transition:opacity .18s ease,border-color .18s ease;
+}
+.cat-group--rows .cat-item__card::before{
+  top:5px;
+  left:5px;
+  border-right-width:0;
+  border-bottom-width:0;
+}
+.cat-group--rows .cat-item__card::after{
+  right:5px;
+  bottom:5px;
+  border-top-width:0;
+  border-left-width:0;
+}
+/* Внутренняя рамка появляется при наведении: отступ 6px, толщина
+   1px. Ни позицию, ни размер, ни фокус карточка не меняет. */
+.cat-group--rows .cat-item__frame{
+  display:block;
+  position:absolute;
+  inset:6px;
+  border:1px solid transparent;
+  pointer-events:none;
+  transition:border-color .18s ease;
+}
+@media (hover:hover) and (pointer:fine){
+  .cat-group--rows .cat-item__card:hover::before,
+  .cat-group--rows .cat-item__card:hover::after{
+    opacity:1;
+    border-color:var(--steel-700);
+  }
+  .cat-group--rows .cat-item__card:hover .cat-item__frame{
+    border-color:var(--steel-400);
+  }
+}
+
+/* Типографика карточки: та же, что в принятом образце. Описание
+   занимает всю внутреннюю ширину карточки. */
+.cat-group--rows .cat-item__tags{
+  margin:0 0 14px;
+  gap:7px;
+}
+.cat-group--rows .cat-item__desc{
+  max-width:none;
+  margin-top:0;
+  font-size:15px;
+  line-height:1.55;
+  color:var(--muted);
+}
+.cat-group--rows .cat-item__for{
+  max-width:none;
+  margin-top:14px;
+  padding-top:12px;
+  border-top:1px solid var(--line-soft);
+}
+
+/* Ниже 860px: одна колонка, порядок как в разметке. Полоса
+   остаётся за карточками, уже и ближе к их левому краю. */
+@media (max-width:859px){
+  .cat-group--rows{
+    --cat-col-gap:clamp(24px,4.4vw,36px);
+    --cat-rail:20px;
+    --cat-rail-inset:14px;
+    /* Фактическое поле контейнера по бокам на этой ширине: 24px до 640px
+       и 18px ниже. */
+    --cat-cont-pad:24px;
+  }
+  /* Ось полосы осталась на прежнем месте. Прежняя формула отсчитывала её
+     от левого края секции: поле категории 18px плюс отступ внутрь
+     карточки, причём поле контейнера из неё ещё не вычиталось. От левого
+     края области программ это поле нужно вычесть, поэтому смещение
+     повторяется один в один. */
+  .cat-group--rows .cat-group__rail{
+    left:calc(18px - var(--cat-cont-pad) + var(--cat-rail-inset));
+  }
+  .cat-group--rows .cat-item{
+    grid-template-columns:minmax(0,1fr);
+    gap:12px;
+  }
+  /* В одной колонке первая строка программы — это её название, а
+     карточка идёт под ним, поэтому полоса, начинающаяся от начала
+     области программ, попала бы в название. Название перекрывает её
+     своим фоном; чтобы между названием и карточкой полосы не
+     оставалось, у первой программы зазор строки перенесён в нижний
+     отступ названия: величина 12px и положение карточки те же.
+    :first-of-type, потому что первым потомком области программ
+     является сама полоса. */
+  .cat-group--rows .cat-group__body > article.cat-item:first-of-type{
+    gap:0;
+  }
+  .cat-group--rows .cat-group__body > article.cat-item:first-of-type > .cat-item__title{
+    padding-bottom:12px;
+  }
+  /* Название программы перекрывает полосу собственным фоном на всю
+     свою ширину — ровно тем же приёмом, каким на главной полоса
+     benefits перекрывается вводным блоком. Текст остаётся читаемым,
+     полоса видна в промежутках между программами и по полям секции. */
+  .cat-group--rows .cat-item__title{
+    padding-top:0;
+    position:relative;
+    z-index:1;
+    background-color:var(--cat-section-bg);
+  }
+}
+@media (max-width:639px){
+  .cat-group--rows{
+    --cat-rail:16px;
+    --cat-rail-inset:10px;
+    --cat-row-gap:clamp(18px,4.6vw,24px);
+    --cat-cont-pad:18px;
+  }
+}
+/* ==========================================================================
+   Адаптив
+   ========================================================================== */
+
+/* Mobile <640: компактная CTA, фото отдельным блоком сверху, текст ниже */
+@media (max-width:639px){
+  .container{padding-inline:18px}
+  /* Внутренний отступ шапки больше не переопределяется: шапка и есть
+     .container, поэтому логотип начинается с той же границы, что тексты
+     и карточки секций (18px на этой ширине, 24px выше). Сохранён только
+     вертикальный зазор строк — прежние 12px. */
+  .site-header__inner{row-gap:12px}
+  /* Компактная кнопка на mobile: срез уменьшен пропорционально высоте.
+   Правый внутренний отступ увеличен 16→20px, чтобы срез 15px
+   не подходил к тексту вплотную. */
+  .btn{--btn-cut:15px;font-size:14.5px;padding:11px 20px}
+  .btn--lg{min-height:52px;font-size:16px;padding:15px 22px}
+  /* Правила .dir-* для узких экранов вынесены в блок секции D. */
+
+  /* Вариант A: фотография отдельным блоком, текст на сплошном фоне.
+     Десктопные ограничения высоты hero сняты, высота идёт от фото и текста. */
+  .hero{
+    display:block;
+    min-height:0;
+    padding-top:var(--header-h);
+  }
+  .hero__media{
+    position:static;
+    z-index:auto;
+    width:100%;
+    aspect-ratio:4/3;
+  }
+  .hero__image{
+    position:static;
+    width:100%;
+    height:100%;
+    /* Стартовое значение. Итоговое кадрирование подбирается визуально. */
+    object-position:70% 45%;
+  }
+  .hero__scrim{display:none}
+  .hero__inner{
+    position:static;
+    padding-block:clamp(51.2px,11.2vw,70.4px); /* −20%: 64/14/88 → 51.2/11.2/70.4 */
+  }
+  .hero__text{max-width:none}
+}
+
+/* Узкие экраны: логотип 32px. */
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{
+    transition-duration:.001ms !important;
+    animation-duration:.001ms !important;
+    animation-iteration-count:1 !important;
+  }
+  /* Пространственное движение отключается: подъём кнопок и панелей
+     directions, а также нажатие «Наверх». Смена оттенка остаётся и
+     происходит без заметной анимации — переходы уже обнулены выше,
+     поэтому отклик мгновенный и всё ещё различимый. */
+  .btn:hover,
+  .btn:active,
+  .dir-row:hover .dir-row__go-btn,
+  .to-top:active{transform:none}
+}
+
+/* ==========================================================================
+   J. КНОПКА «НАВЕРХ»
+   Фиксирована справа снизу, появляется после прокрутки на высоту окна.
+   Ниже шапки по z-index: логотип, CTA и панель меню всегда поверх.
+   ========================================================================== */
+
+.to-top{
+  position:fixed;
+  right:22px;
+  bottom:22px;
+  z-index:40;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:48px;
+  height:48px;
+  padding:0;
+  border:1px solid rgba(48,26,0,.28);
+  border-radius:12px;
+  /* Та же ровная медно-янтарная поверхность, что у основных кнопок,
+     и те же тонкие светлые кромки. Внутренней подсветки нет:
+     серебристая заливка заменена на янтарно-коричневую.
+     Подъёма при наведении нет и не добавляется — кнопка остаётся
+     на месте, меняется только оттенок. */
+  background-color:#a66600;
+  background-image:
+    linear-gradient(180deg,rgba(58,32,0,0) 55%,rgba(58,32,0,.08) 100%);
+  /* Стрелка рисуется currentColor, поэтому надпись здесь светлая:
+     4.64:1 на normal и 6.51:1 на затемнённом hover. */
+  color:#fff;
+  box-shadow:
+    inset 0 1px 0 rgba(255,238,208,.5),
+    inset 0 -1px 0 rgba(48,26,0,.28),
+    inset 1px 0 0 rgba(255,238,208,.22),
+    inset -1px 0 0 rgba(48,26,0,.2),
+    0 2px 8px rgba(13,18,25,.28);
+  cursor:pointer;
+  transition:background-color .18s ease,box-shadow .18s ease,transform .18s ease;
+}
+/* Скрытая кнопка не отображается и не попадает в Tab-порядок. */
+.to-top[hidden]{display:none}
+
+.to-top__arrow{
+  width:10px;
+  height:10px;
+  border-left:1.5px solid currentColor;
+  border-top:1.5px solid currentColor;
+  transform:translateY(2px) rotate(45deg);
+}
+
+@media (hover:hover) and (pointer:fine){
+  .to-top:hover{
+    background-color:#8a5000;
+    box-shadow:
+      inset 0 1px 0 rgba(255,238,208,.62),
+      inset 0 -1px 0 rgba(48,26,0,.34),
+      inset 1px 0 0 rgba(255,238,208,.28),
+      inset -1px 0 0 rgba(48,26,0,.24),
+      0 4px 12px rgba(13,18,25,.34);
+  }
+}
+.to-top:active{transform:translateY(1px)}
+.to-top:focus-visible{
+  outline:2px solid var(--amber);
+  outline-offset:3px;
+}
+
+/* Ссылка футера дублирует функцию, но остаётся видимой без JS. */
+.to-top-ready .site-footer__top{display:none}
+
+@media (max-width:639px){
+  .to-top{right:15px;bottom:15px}
+}
+@supports (right:max(0px)){
+  .to-top{
+    right:max(22px,calc(env(safe-area-inset-right) + 14px));
+    bottom:max(22px,calc(env(safe-area-inset-bottom) + 14px));
+  }
+  @media (max-width:639px){
+    .to-top{
+      right:max(15px,calc(env(safe-area-inset-right) + 10px));
+      bottom:max(15px,calc(env(safe-area-inset-bottom) + 10px));
+    }
+  }
+}
+
+/* ==========================================================================
+   K. ЗАЯВКА — МОДАЛЬНАЯ ФОРМА
+   Нативный <dialog> + showModal(): блокировка страницы за окном,
+   возврат фокуса и закрытие по Escape даёт сам браузер, поэтому
+   ручная ловушка Tab не нужна. Один экземпляр на документ, общий
+   для всех триггеров [data-open-request].
+   Окно большое и светлое, в принятой стилистике: прямые углы, тонкие
+   границы --line, графитовый текст, янтарная кнопка отправки.
+   Заголовок и крестик закреплены в шапке окна и не уезжают при
+   прокрутке содержимого; прокручивается только содержимое.
+   ========================================================================== */
+
+.request{
+  --request-gutter:24px;
+  width:min(920px,calc(100% - 2 * var(--request-gutter)));
+  max-width:none;
+  max-height:calc(100vh - 2 * var(--request-gutter));
+  margin:auto;
+  padding:0;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  background:var(--neutral-bg);
+  color:var(--graphite);
+  overflow:hidden;
+}
+@supports (max-height:100dvh){
+  .request{max-height:calc(100dvh - 2 * var(--request-gutter))}
+}
+/* Без атрибута open окно не отображается — как и задаёт браузер.
+   С атрибутом это колоночный контейнер: шапка и содержимое. */
+.request[open]{display:flex; flex-direction:column}
+
+/* Затемнение без размытия страницы. */
+.request::backdrop{background:rgba(13,18,25,.62)}
+
+.request__head{
+  flex:0 0 auto;
+  display:flex;
+  align-items:flex-start;
+  gap:16px;
+  padding:24px var(--request-gutter) 18px;
+  border-bottom:1px solid var(--line);
+  background:var(--neutral-bg);
+}
+.request__title{
+  flex:1 1 auto;
+  min-width:0;
+  font-size:clamp(1.25rem,1.9vw,1.625rem);
+  line-height:1.22;
+  font-weight:800;
+  letter-spacing:-.02em;
+  color:var(--graphite);
+}
+.request__title:focus-visible{outline:2px solid var(--amber); outline-offset:4px}
+
+/* Крестик: две линии, область нажатия 44×44. */
+.request__close{
+  position:relative;
+  flex:0 0 auto;
+  width:44px;
+  height:44px;
+  padding:0;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  background:var(--neutral-bg-alt);
+  color:var(--graphite);
+  cursor:pointer;
+  transition:background-color .18s ease,border-color .18s ease;
+}
+.request__close::before,
+.request__close::after{
+  content:"";
+  position:absolute;
+  left:50%;
+  top:50%;
+  width:16px;
+  height:2px;
+  background:currentColor;
+}
+.request__close::before{transform:translate(-50%,-50%) rotate(45deg)}
+.request__close::after{transform:translate(-50%,-50%) rotate(-45deg)}
+@media (hover:hover) and (pointer:fine){
+  .request__close:hover{background:var(--line); border-color:var(--steel-400)}
+}
+.request__close:focus-visible{outline:2px solid var(--amber); outline-offset:3px}
+
+.request__body{
+  flex:1 1 auto;
+  min-height:0;
+  overflow-y:auto;
+  overscroll-behavior:contain;
+  -webkit-overflow-scrolling:touch;
+  padding:20px var(--request-gutter) var(--request-gutter);
+}
+.request__lead{
+  font-size:clamp(1rem,1.1vw,1.0625rem);
+  line-height:1.55;
+  color:var(--graphite-soft);
+}
+.request__demo{
+  margin-top:12px;
+  padding:10px 12px;
+  border-left:2px solid var(--amber);
+  background:var(--neutral-bg-alt);
+  font-size:14px;
+  line-height:1.5;
+  color:var(--graphite-soft);
+}
+
+/* Поля: подпись настоящая, placeholder её не заменяет.
+   Имя/компания и телефон/email попарно в две колонки, textarea —
+   во всю ширину. Ниже 720px одна колонка. */
+.request__form{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:18px 20px;
+  margin-top:20px;
+}
+.request__field{
+  display:flex;
+  flex-direction:column;
+  gap:7px;
+  min-width:0;
+}
+.request__field--wide{grid-column:1 / -1}
+.request__label{
+  font-size:13px;
+  font-weight:700;
+  letter-spacing:.01em;
+  color:var(--graphite);
+}
+.request__input,
+.request__select,
+.request__textarea{
+  width:100%;
+  min-height:48px;
+  padding:12px 14px;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  background:#fff;
+  color:var(--graphite);
+  font:inherit;
+  /* 16px — чтобы мобильный браузер не увеличивал поле при фокусе */
+  font-size:16px;
+  line-height:1.4;
+}
+.request__textarea{
+  min-height:132px;
+  resize:vertical;
+}
+.request__input::placeholder,
+.request__textarea::placeholder{color:var(--muted); opacity:.72}
+.request__input:focus-visible,
+.request__select:focus-visible,
+.request__textarea:focus-visible{
+  outline:2px solid var(--amber);
+  outline-offset:2px;
+}
+.request__input:focus,
+.request__select:focus,
+.request__textarea:focus{border-color:var(--steel-400)}
+.request__input[aria-invalid="true"],
+.request__select[aria-invalid="true"],
+.request__textarea[aria-invalid="true"]{border-color:#a3271f}
+.request__error{
+  font-size:13px;
+  line-height:1.4;
+  color:#a3271f;
+}
+.request__error:empty{display:none}
+
+.request__actions{
+  grid-column:1 / -1;
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  gap:12px 18px;
+  margin-top:4px;
+}
+.request__submit{font-size:16px; padding:14px 26px}
+.request__required{
+  font-size:13px;
+  line-height:1.4;
+  color:var(--muted);
+}
+
+/* Ответ формы. Пока серверного endpoint нет, он честно сообщает, что
+   онлайн-отправка не подключена, и даёт реальные контакты проекта. */
+.request__status{
+  grid-column:1 / -1;
+  padding:14px 16px;
+  border:1px solid var(--line);
+  background:#fff;
+  font-size:14.5px;
+  line-height:1.55;
+  color:var(--graphite);
+}
+.request__status[hidden]{display:none}
+.request__note{
+  margin-top:16px;
+  font-size:13px;
+  line-height:1.5;
+  color:var(--muted);
+}
+.request__status-title{
+  display:block;
+  font-weight:700;
+  margin-bottom:6px;
+}
+.request__status-list{
+  margin:8px 0 0;
+  padding:0;
+  list-style:none;
+  font-size:14px;
+}
+.request__status-list li{margin-top:4px}
+.request__status-list .request__status-label{color:var(--muted)}
+
+/* Мобильная панель: почти во весь экран, одна колонка, safe-area и
+   dvh, чтобы окно уживалось с экранной клавиатурой. */
+@media (max-width:719px){
+  .request{
+    width:auto;
+    max-width:none;
+    height:100vh;
+    max-height:100vh;
+    margin:0;
+    border:0;
+    padding-top:env(safe-area-inset-top);
+    padding-bottom:env(safe-area-inset-bottom);
+  }
+  @supports (height:100dvh){
+    .request{height:100dvh; max-height:100dvh}
+  }
+  .request__head{padding:16px 16px 14px; gap:12px}
+  .request__body{padding:16px}
+  .request__form{grid-template-columns:minmax(0,1fr); gap:16px}
+  .request__actions{flex-direction:column; align-items:stretch}
+  .request__submit{width:100%}
+}
+
+@media (prefers-reduced-motion:reduce){
+  .request__close{transition:none}
+}

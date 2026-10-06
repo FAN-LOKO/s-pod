@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Программы поддержки сотрудников — 29 программ по пяти направлениям | EAP Care</title>
+<meta name="description" content="Каталог программ поддержки для сотрудников машиностроительных предприятий: 29 программ по пяти направлениям — семья и дети, быт и жильё, право и финансы, здоровье и баланс, карьера и отношения в коллективе. Модульное подключение.">
+<meta name="theme-color" content="#fafaf8">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+<a class="skip-link" href="#main">Перейти к основному содержанию</a>
+
+<header class="site-header" id="top" tabindex="-1">
+  <div class="container site-header__inner">
+
+    <a class="brand" href="index.html">
+      <img class="brand__logo" src="assets/img/brand/logo.png" alt="EAP Care" width="556" height="112">
+    </a>
+
+    <button class="site-nav-toggle" type="button" aria-expanded="false" aria-controls="site-nav-panel" aria-label="Открыть меню">
+      <span class="site-nav-toggle__icon" aria-hidden="true"></span>
+    </button>
+
+    <nav class="site-nav" id="site-nav-panel" aria-label="Основная навигация">
+      <ul class="site-nav__list">
+        <li><a class="site-nav__link" href="index.html">Главная</a></li>
+        <li><a class="site-nav__link" href="programs.html" aria-current="page">Программы поддержки</a></li>
+        <li><a class="site-nav__link" href="#contact">Контакты</a></li>
+        <li><button class="btn site-nav__cta" type="button" data-open-request>Оставить заявку</button></li>
+      </ul>
+    </nav>
+
+  </div>
+</header>
+
+<main id="main">
+
+  <!-- ==================== HERO ====================
+       Принцип Hero главной: фотография занимает всю область секции,
+       текст лежит поверх неё. Здесь композиция зеркальная: группа
+       сотрудников в кадре слева, текст справа — над спокойной тёмной
+       частью фотографии. Отдельной карточки с изображением и
+       однотонной панели справа нет, фотография не отражается.
+       Одно действие: открыть заявку через общий dialog.
+       Общий якорь #programmy на самом каталоге сохранён — по нему
+       ведут переходы с главной и из навигации по категориям. -->
+  <section class="ph-hero" aria-labelledby="ph-hero-title">
+
+    <!-- Первое видимое изображение страницы: не lazy, высокий приоритет.
+         Размеры заданы атрибутами у <img>, поэтому пропорции 1280×720
+         известны до загрузки и раскладка не прыгает.
+         Кадр — принятый assets/img/hero/002.png, по горизонтали не
+         отражается. В <picture> только оптимизированная копия того же
+         кадра: WebP q88, 126 КБ против 1 408 КБ у PNG, с тем же
+         разрешением 1280×720. Оригинал не перезаписан, он же остаётся
+         запасным вариантом для браузеров без WebP. Лица и руки сверены
+         попиксельно с оригиналом и на вид не отличаются. -->
+    <div class="ph-hero__media">
+      <picture>
+        <source srcset="assets/img/hero/002.webp" type="image/webp">
+        <img class="ph-hero__image" src="assets/img/hero/002.png"
+             alt="Сотрудники предприятия в форменной одежде беседуют в комнате отдыхания"
+             width="1280" height="720"
+             loading="eager" fetchpriority="high" decoding="async">
+      </picture>
+    </div>
+
+    <!-- Локальный градиент только для читаемости текста: к правому
+         краю, где тёмная стена, и вниз под кнопку. Слева, где группа,
+         он практически прозрачен — тепло сцены и лица открыты. -->
+    <div class="ph-hero__scrim" aria-hidden="true"></div>
+
+    <div class="container ph-hero__inner">
+      <div class="ph-hero__text">
+        <h1 class="ph-hero__title" id="ph-hero-title">Программы поддержки сотрудников</h1>
+
+        <p class="ph-hero__lead">
+          Психологическая, юридическая, семейная и бытовая поддержка — под задачи
+          вашего предприятия. Выберите нужные направления и начните со стартового набора.
+        </p>
+
+        <div class="ph-hero__cta">
+          <button class="btn btn--lg" type="button" data-open-request>Оставить заявку</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== ВСТУПЛЕНИЕ ====================
+       Это начало каталога, на него ведёт «Посмотреть программы» из Hero.
+       Заголовок здесь второго уровня: единственный H1 страницы — в Hero.
+       Отступ сверху задан общим scroll-padding-top, поэтому липкая
+       шапка заголовок каталога не закрывает. -->
+  <section class="cat-intro" id="programmy" aria-labelledby="cat-intro-title">
+    <div class="container">
+      <h2 class="cat-intro__title" id="cat-intro-title">Программы поддержки сотрудников</h2>
+      <p class="cat-intro__lead">
+        Программы можно комбинировать и включать отдельными модулями.
+        Начните с 2–3 самых востребованных — остальное подключите позже.
+      </p>
+    </div>
+  </section>
+
+  <!-- ==================== НАВИГАЦИЯ ПО КАТЕГОРИЯМ ==================== -->
+  <nav class="cat-nav" aria-label="Категории программ поддержки">
+    <div class="container">
+      <p class="cat-nav__title">Категории программ</p>
+      <ul class="cat-nav__list">
+        <li><a class="cat-nav__link" href="#semya-i-deti">Семья и дети <span class="cat-nav__count">8</span></a></li>
+        <li><a class="cat-nav__link" href="#byt-i-zhilyo">Быт и жильё <span class="cat-nav__count">5</span></a></li>
+        <li><a class="cat-nav__link" href="#pravo-i-finansy">Право и финансы <span class="cat-nav__count">6</span></a></li>
+        <li><a class="cat-nav__link" href="#zdorove-i-balans">Здоровье и баланс <span class="cat-nav__count">4</span></a></li>
+        <li><a class="cat-nav__link" href="#karera-i-otnosheniya">Карьера и отношения в коллективе <span class="cat-nav__count">6</span></a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- ==================== 01. СЕМЬЯ И ДЕТИ — 8 ==================== -->
+  <section class="cat-group cat-group--rows" id="semya-i-deti" aria-labelledby="cat-semya-title">
+    <div class="container">
+      <div class="cat-group__head">
+        <h2 class="cat-group__title" id="cat-semya-title">Семья и дети</h2>
+        <span class="cat-group__count">8 программ</span>
+      </div>
+
+      <div class="cat-group__body">
+        <!-- Полоса категории. Декоративный слой своей секции: идёт за
+             карточками справа, видна в промежутках и полях, скрыта их
+             непрозрачной поверхностью, перекрывает центрированный
+             заголовок и не заходит в следующую категорию.
+             Фокуса и событий не имеет. -->
+        <span class="cat-group__rail" aria-hidden="true"></span>
+
+        <article class="cat-item" id="sozdanie-semi">
+          <h3 class="cat-item__title">Создание семьи</h3>
+
+          <div class="cat-item__card">
+            <span class="cat-item__frame" aria-hidden="true"></span>
+            <ul class="cat-item__tags">
+              <li class="cat-tag">Психология</li>
+              <li class="cat-tag">Юрист</li>
+              <li class="cat-tag">Мероприятия</li>
+            </ul>
+
+            <div class="cat-item__body">
+              <p class="cat-item__desc">Программа для сотрудников, которые хотят создать семью или готовятся к браку. Психологические консультации по вопросам отношений, помощь в знакомствах через мероприятия и клубы по интересам, юридическая поддержка по семейному праву, льготы для молодожёнов.</p>
+              <p class="cat-item__for"><span class="cat-item__for-label">Для кого</span><span class="cat-item__for-text">Молодые специалисты, работники смен, вахтовики</span></p>
+            </div>
+          </div>
+        </article>
+
+        <article class="cat-item" id="navstrechu-drug-drugu">
+          <h3 class="cat-item__title">Навстречу друг другу</h3>
+
+          <div class="cat-item__card">
+            <span class="cat-item__frame" aria-hidden="true"></span>
+            <ul class="cat-item__tags">
+              <li class="cat-tag">Семья</li>
+              <li class="cat-tag">Психолог</li>
+              <li class="cat-tag">Юрист</li>
+            </ul>
+
+            <div class="cat-item__body">
+              <p class="cat-item__desc">Поддержка на этапе до развода. Консультации семейного психолога, юридические консультации по семейному праву. Помощь восстановить отношения или цивилизованно пройти период расставания.</p>
+              <p class="cat-item__for"><span class="cat-item__for-label">Для кого</span><span class="cat-item__for-text">Сотрудники в кризисе семейных отношений</span></p>
+            </div>
+          </div>
+        </article>
+
+        <article class="cat-item" id="odinokie-roditeli">
+          <h3 class="cat-item__title">Поддержка одиноких родителей</h3>
+
+          <div class="cat-item__card">
+            <span class="cat-item__frame" aria-hidden="true"></span>
+            <ul class="cat-item__tags">
+              <li class="cat-tag">Родители</li>
+              <li class="cat-tag">Психология</li>
+            </ul>
+
+            <div class="cat-item__body">
+              <p class="cat-item__desc">Программа для сотрудников, воспитывающих детей без второго родителя. Психологическая поддержка, юридические консультации, помощь в решении бытовых и финансовых вопросов.</p>
+              <p class="cat-item__for"><span class="cat-item__for-label">Для кого</span><span class="cat-item__for-text">Одинокие мамы и папы в коллективе</span></p>
+            </div>
+          </div>
+        </article>
+
+        <article class="cat-item" id="obrazovanie-detej">
+          <h3 class="cat-item__title">Образование детей</h3>
+
+          <div class="cat-item__card">
+            <span class="cat-item__frame" aria-hidden="true"></span>
+            <ul class="cat-item__tags">
+              <li class="cat-tag">Дети</li>
+              <li class="cat-tag">Образование</li>
+            </ul>
+
+            <div class="cat-item__body">
+              <p class="cat-item__desc">Подбор учебных заведений: школы, колледжи, вузы, дополнительное образование. Консультации по поступлению, подготовке и выбору траектории обучения ребёнка.</p>
+              <p class="cat-item__for"><span class="cat-item__for-label">Для кого</span><span class="cat-item__for-text">Родители школьников и абитуриентов</span></p>
+            </div>
+          </div>
+        </article>
+
+        <article class="cat-item" id="proforientaciya-rebyonka">
+          <h3 class="cat-item__title">Профориентация ребёнка</h3>
+
+          <div class="cat-item__card">
+            <span class="cat-item__frame" aria-hidden="true"></span>
+            <ul class="cat-item__tags">
+              <li class="cat-tag">Дети</li>
+              <li class="cat-tag">Карьера</li>
+            </ul>
+
+            <div class="cat-item__body">
+              <p class="cat-item__desc">Помощь в профессиональном самоопределении детей сотрудников. Тестирование, консультации профориентолога, знакомство с профессиями, в том числе инженерными и рабочими специальностями.</p>
+              <p class="cat-item__for"><span class="cat-item__for-label">Для кого</span><span class="cat-item__for-text">Сотрудники с детьми 12–18 лет</span></p>
+            </div>
+          </div>
+        </article>
+
+        <article class="cat-item" id="prava-pri-razvode">
+          <h3 class="cat-item__title">Равные права при разводе</h3>
+
+          <div class="cat-item__card">
+            <span class="cat-item__frame" aria-hidden="true"></span>
+            <ul class="cat-item__tags">
+              <li class="cat-tag">Развод</li>
+              <li class="cat-tag">Семейное право</li>
+            </ul>
+
+            <div class="cat-item__body">
+              <p class="cat-item__desc">Семейный юрист при разводе — независимо от того, по чьей инициативе расторгается брак. Помощь в разделе имущества, определении места жительства детей, алиментах.</p>
+              <p class="cat-item__for"><span class="cat-item__for-label">Для кого</span><span class="cat-item__for-text">Сотрудники в процессе расторжения брака</span></p>
+            </div>
+          </div>
+        </article>
+
+        <article class="cat-item" id="zabota-o-roditelyah">
+          <h3 class="cat-item__title">Забота о родителях</h3>
+
+          <div class="cat-item__card">
+            <span class="cat-item__frame" aria-hidden="true"></span>
+            <ul class="cat-item__tags">
+              <li class="cat-tag">Семья</li>
+              <li class="cat-tag">Уход</li>
+            </ul>
+
+            <div class="cat-item__body">
+              <p class="cat-item__desc">Программа поддержки сотрудников, ухаживающих за пожилыми родителями. Консультации по социальному обслуживанию, льготам, медицинскому уходу, юридическим вопросам.</p>
+              <p class="cat-item__for"><span class="cat-item__for-label">Для кого</span><span class="cat-item__for-text">Сотрудники старшего возраста и их семьи</span></p>
+            </div>
+          </div>
+        </article>
+
+        <article class="cat-item" id="v-dekrete-vmeste">
+          <h3 class="cat-item__title">В декрете — вместе</h3>
+
+          <div class="cat-item__card">
+            <span class="cat-item__frame" aria-hidden="true"></span>
+            <ul class="cat-item__tags">
+              <li class="cat-tag">Декрет</li>
+              <li class="cat-tag">Возвращение</li>
+            </ul>
+
+            <div class="cat-item__body">
+              <p class="cat-item__desc">Поддержка сотрудников в отпуске по беременности и родам или по уходу за ребёнком до 3 лет. Юридические консультации, психологическая поддержка, сохранение квалификации, содействие возвращению на работу.</p>
+              <p class="cat-item__for"><span class="cat-item__for-label">Для кого</span><span class="cat-item__for-text">Сотрудницы и сотрудники в декретном отпуске</span></p>
+            </div>
+          </div>
+        </article>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ==================== 02. БЫТ И ЖИЛЬЁ — 5 ==================== -->
+  <section class="cat-group cat-group--rows cat-group--alt" id="byt-i-zhilyo" aria-labelledby="cat-byt-title">
+    <div class="container">
+      <div class="cat-group__head">
+        <h2 class="cat-group__title" id="cat-byt-title">Быт и жильё</h2>
+        <span class="cat-group__count">5 программ</span>
+      </div>
+
+      <div class="cat-group__body">
+        <span class="cat-group__rail" aria-hidden="true"></span>
+
+        <article class="cat-item" id="zhilishnaya-programma">
+          <h3 class="cat-item__title">Жилищная программа</h3>
+
+          <div class="cat-item__card">
+            <span class="cat-item__frame" aria-hidden="true"></span>
+            <ul class="cat-item__tags">
+              <li class="cat-tag">Ипотека</li>
+              <li class="cat-tag">Субсидии</li>
+              <li class="cat-tag">Вычеты</li>
+            </ul>
+
+            <div class="cat-item__body">
+              <p class="cat-item__desc">Помощь специалистов по жилью: разбор ипотечных программ, субсидий, служебного жилья, налоговых вычетов. Консультации по покупке, аренде и улучшению жилищных условий сотрудников и их семей.</p>
+              <p class="cat-item__for"><span class="cat-item__for-label">Для кого</span><span class="cat-item__for-text">Сотрудники, переезжающие на новую площадку, молодые семьи</span></p>
+            </div>
+          </div>
+        </article>
+
+        <article class="cat-item" id="lichnyy-pomoshchnik-i-master-na-chas">
+          <h3 class="cat-item__title">Личный помощник и «Мастер на час»</h3>
+
+          <div class="cat-item__card">
+            <span class="cat-item__frame" aria-hidden="true"></span>
+            <ul class="cat-item__tags">
+              <li class="cat-tag">Быт</li>
+              <li class="cat-tag">Экономия времени</li>
+            </ul>
+
+            <div class="cat-item__body">
+              <p class="cat-item__desc">Сервис решения бытовых вопросов: вызов мастера для ремонта, сантехника, электрика, мелкий бытовой ремонт. Экономит время и снижает бытовой стресс сотрудников.</p>
+              <p class="cat-item__for"><span class="cat-item__for-label">Для кого</span><span class="cat-item__for-text">Сотрудники с высокой загрузкой и сменным графиком</span></p>
+            </div>
+          </div>
+        </article>
+
+        <article class="cat-item" id="avtomobilnaya-programma-i-pomoshch-na-doroge">
+          <h3 class="cat-item__title">Автомобильная программа и «Помощь на дороге»</h3>
+
+          <div class="cat-item__card">
+            <span class="cat-item__frame" aria-hidden="true"></span>
+            <ul class="cat-item__tags">
+              <li class="cat-tag">Авто</li>
+              <li class="cat-tag">Эвакуация</li>
+            </ul>
+
+            <div class="cat-item__body">
+              <p class="cat-item__desc">Помощь с автомобилем: подбор, покупка, обслуживание, юридические вопросы. Сервис «Помощь на дороге» — эвакуация, техническая помощь, консультации в дороге.</p>
+              <p class="cat-item__for"><span class="cat-item__for-label">Для кого</span><span class="cat-item__for-text">Сотрудники, добирающиеся до работы на личном транспорте</span></p>
+            </div>
+          </div>
+        </article>
+
+        <article class="cat-item" id="zagorodnyy-uikend">
+          <h3 class="cat-item__title">Загородный уикенд</h3>
+
+          <div class="cat-item__card">
+            <span class="cat-item__frame" aria-hidden="true"></span>
+            <ul class="cat-item__tags">
+              <li class="cat-tag">Отдых</li>
+              <li class="cat-tag">Семья</li>
+            </ul>
+
+            <div class="cat-item__body">
+              <p class="cat-item__desc">Семейный загородный отдых от партнёров: базы отдыха, санатории, экотуризм. Скидки и специальные условия для сотрудников компании.</p>
+              <p class="cat-item__for"><span class="cat-item__for-label">Для кого</span><span class="cat-item__for-text">Сотрудники с семьями</span></p>
+            </div>
+          </div>
+        </article>
+
+        <article class="cat-item" id="zabota-o-domashnem-pitomtse">
+          <h3 class="cat-item__title">Забота о домашнем питомце</h3>
+
+          <div class="cat-item__card">
+            <span class="cat-item__frame" aria-hidden="true"></span>
+            <ul class="cat-item__tags">
+              <li class="cat-tag">Питомцы</li>
+              <li class="cat-tag">Партнёры</li>
+            </ul>
+
+            <div class="cat-item__body">
+              <p class="cat-item__desc">Помощь в заботе о домашних животных: ветеринарные консультации, поиск клиник, передержка, зоотовары от партнёров.</p>
+              <p class="cat-item__for"><span class="cat-item__for-label">Для кого</span><span class="cat-item__for-text">Владельцы домашних животных</span></p>
+            </div>
+          </div>
+        </article>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ==================== 03. ПРАВО И ФИНАНСЫ — 6 ==================== -->
+  <section class="cat-group cat-group--rows" id="pravo-i-finansy" aria-labelledby="cat-pravo-title">
+    <div class="container">
+      <div class="cat-group__head">
+        <h2 class="cat-group__title" id="cat-pravo-title">Право и финансы</h2>
+        <span class="cat-group__count">6 программ</span>
+      </div>
+
+      <div class="cat-group__body">
+        <span class="cat-group__rail" aria-hidden="true"></span>
+
+        <article class="cat-item" id="vozvrat-nalogov">
+          <h3 class="cat-item__title">Возврат налогов</h3>
+
+          <div class="cat-item__card">
+            <span class="cat-item__frame" aria-hidden="true"></span>
+            <ul class="cat-item__tags">
+              <li class="cat-tag">Налоги</li>
+              <li class="cat-tag">Вычеты</li>
+            </ul>
+
+            <div class="cat-item__body">
+              <p class="cat-item__desc">Помощь в получении налоговых вычетов: за обучение, лечение, покупку жилья, ИИС. Консультации по декларированию доходов, подготовка документов.</p>
+              <p class="cat-item__for"><span class="cat-item__for-label">Для кого</span><span class="cat-item__for-text">Все категории сотрудников</span></p>
+            </div>
+          </div>
+        </article>
+
+        <article class="cat-item" id="pravovoy-vyhod-iz-dolgov">
+          <h3 class="cat-item__title">Правовой выход из долгов</h3>
+
+          <div class="cat-item__card">
+            <span class="cat-item__frame" aria-hidden="true"></span>
+            <ul class="cat-item__tags">
+              <li class="cat-tag">Долги</li>
+              <li class="cat-tag">Банкротство</li>
+              <li class="cat-tag">Защита</li>
+            </ul>
+
+            <div class="cat-item__body">
+              <p class="cat-item__desc">Программа для сотрудников с долговой нагрузкой. Консультации по банкротству, реструктуризации долга, защите от давления коллекторов, сохранению прожиточного минимума.</p>
+              <p class="cat-item__for"><span class="cat-item__for-label">Для кого</span><span class="cat-item__for-text">Сотрудники с кредитной нагрузкой</span></p>
+            </div>
+          </div>
+        </article>
+
+        <article class="cat-item" id="soprovozhdenie-pri-ispolnitelnom-proizvodstve">
+          <h3 class="cat-item__title">Сопровождение при исполнительном производстве</h3>
+
+          <div class="cat-item__card">
+            <span class="cat-item__frame" aria-hidden="true"></span>
+            <ul class="cat-item__tags">
+              <li class="cat-tag">Приставы</li>
+              <li class="cat-tag">Юрист</li>
+            </ul>
+
+            <div class="cat-item__body">
+              <p class="cat-item__desc">Правовая поддержка при исполнительных производствах. Юридические консультации, обжалование незаконных действий приставов, снижение взыскания, сохранение прожиточного минимума, реструктуризация долга.</p>
+              <p class="cat-item__for"><span class="cat-item__for-label">Для кого</span><span class="cat-item__for-text">Сотрудники, столкнувшиеся с взысканиями</span></p>
+            </div>
+          </div>
+        </article>
+
+        <article class="cat-item" id="yuridicheskaya-pomoshch-pri-bankrotstve">
+          <h3 class="cat-item__title">Юридическая помощь при банкротстве</h3>
+
+          <div class="cat-item__card">
+            <span class="cat-item__frame" aria-hidden="true"></span>
+            <ul class="cat-item__tags">
+              <li class="cat-tag">Банкротство</li>
+              <li class="cat-tag">Суд</li>
+            </ul>
+
+            <div class="cat-item__body">
+              <p class="cat-item__desc">Полное сопровождение процедуры банкротства физического лица. Консультации юриста, подготовка документов, представительство в суде, защита интересов сотрудника.</p>
+              <p class="cat-item__for"><span class="cat-item__for-label">Для кого</span><span class="cat-item__for-text">Сотрудники с неподъёмной долговой нагрузкой</span></p>
+            </div>
+          </div>
+        </article>
+
+        <article class="cat-item" id="kreditnyy-reyting">
+          <h3 class="cat-item__title">Кредитный рейтинг</h3>
+
+          <div class="cat-item__card">
+            <span class="cat-item__frame" aria-hidden="true"></span>
+            <ul class="cat-item__tags">
+              <li class="cat-tag">Финансы</li>
+              <li class="cat-tag">БКИ</li>
+            </ul>
+
+            <div class="cat-item__body">
+              <p class="cat-item__desc">Программа повышения кредитного рейтинга. Консультации по кредитным историям, помощь в получении отчётов из БКИ, стратегии улучшения рейтинга, финансовое планирование.</p>
+              <p class="cat-item__for"><span class="cat-item__for-label">Для кого</span><span class="cat-item__for-text">Сотрудники, планирующие крупные покупки</span></p>
+            </div>
+          </div>
+        </article>
+
+        <article class="cat-item" id="mobilizacionnyy-yurist">
+          <h3 class="cat-item__title">Мобилизационный юрист</h3>
+
+          <div class="cat-item__card">
+            <span class="cat-item__frame" aria-hidden="true"></span>
+            <ul class="cat-item__tags">
+              <li class="cat-tag">Право</li>
+              <li class="cat-tag">Гарантии</li>
+            </ul>
+
+            <div class="cat-item__body">
+              <p class="cat-item__desc">Помощь юристов при мобилизации: консультации по правам и гарантиям, бронирование, выплаты, взаимодействие с военкоматом, поддержка семьи мобилизованного сотрудника.</p>
+              <p class="cat-item__for"><span class="cat-item__for-label">Для кого</span><span class="cat-item__for-text">Сотрудники и их семьи в период мобилизации</span></p>
+            </div>
+          </div>
+        </article>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ==================== 04. ЗДОРОВЬЕ И БАЛАНС — 4 ==================== -->
+  <section class="cat-group cat-group--rows cat-group--alt" id="zdorove-i-balans" aria-labelledby="cat-zdorove-title">
+    <div class="container">
+      <div class="cat-group__head">
+        <h2 class="cat-group__title" id="cat-zdorove-title">Здоровье и баланс</h2>
+        <span class="cat-group__count">4 программы</span>
+      </div>
+
+      <div class="cat-group__body">
+        <span class="cat-group__rail" aria-hidden="true"></span>
+
+        <article class="cat-item" id="medicinskiy-konsyerz">
+          <h3 class="cat-item__title">Медицинский консьерж</h3>
+
+          <div class="cat-item__card">
+            <span class="cat-item__frame" aria-hidden="true"></span>
+            <ul class="cat-item__tags">
+              <li class="cat-tag">Запись к врачу</li>
+              <li class="cat-tag">Лекарства</li>
+              <li class="cat-tag">Выплаты</li>
+            </ul>
+
+            <div class="cat-item__body">
+              <p class="cat-item__desc">Программа для сотрудников, находящихся на больничном. Помощь с записью к врачу, поиск лекарств, юридические консультации по оформлению и выплатам, сопровождение в трудной ситуации. Ускорение возвращения к работе.</p>
+              <p class="cat-item__for"><span class="cat-item__for-label">Для кого</span><span class="cat-item__for-text">Все категории сотрудников, особенно с вредными условиями труда</span></p>
+            </div>
+          </div>
+        </article>
+
+        <article class="cat-item" id="krasivaya-ulybka">
+          <h3 class="cat-item__title">Красивая улыбка</h3>
+
+          <div class="cat-item__card">
+            <span class="cat-item__frame" aria-hidden="true"></span>
+            <ul class="cat-item__tags">
+              <li class="cat-tag">Здоровье</li>
+              <li class="cat-tag">Стоматология</li>
+            </ul>
+
+            <div class="cat-item__body">
+              <p class="cat-item__desc">Консьерж-программа по стоматологии: диагностика, лечение, протезирование зубов. Организация лечения в партнёрских клиниках, частичная или полная компенсация.</p>
+              <p class="cat-item__for"><span class="cat-item__for-label">Для кого</span><span class="cat-item__for-text">Все категории сотрудников</span></p>
+            </div>
+          </div>
+        </article>
+
+        <article class="cat-item" id="poleznoe-pitanie-i-poleznaya-korzina">
+          <h3 class="cat-item__title">Полезное питание и «Полезная корзина»</h3>
+
+          <div class="cat-item__card">
+            <span class="cat-item__frame" aria-hidden="true"></span>
+            <ul class="cat-item__tags">
+              <li class="cat-tag">Здоровье</li>
+              <li class="cat-tag">Партнёры</li>
+            </ul>
+
+            <div class="cat-item__body">
+              <p class="cat-item__desc">Вебинары о питании как энергии жизни, доставка продуктов питания местного производства от партнёров. Поддержка здорового образа жизни в коллективе.</p>
+              <p class="cat-item__for"><span class="cat-item__for-label">Для кого</span><span class="cat-item__for-text">Все категории сотрудников</span></p>
+            </div>
+          </div>
+        </article>
+
+        <article class="cat-item" id="work-life-balance">
+          <h3 class="cat-item__title">Work-life balance</h3>
+
+          <div class="cat-item__card">
+            <span class="cat-item__frame" aria-hidden="true"></span>
+            <ul class="cat-item__tags">
+              <li class="cat-tag">Баланс</li>
+              <li class="cat-tag">Антистресс</li>
+            </ul>
+
+            <div class="cat-item__body">
+              <p class="cat-item__desc">Программа соблюдения баланса между работой и личной жизнью. Консультации по тайм-менеджменту, профилактика выгорания, практики восстановления, поддержка в условиях переработок.</p>
+              <p class="cat-item__for"><span class="cat-item__for-label">Для кого</span><span class="cat-item__for-text">Сотрудники с высокой нагрузкой и ненормированным днём</span></p>
+            </div>
+          </div>
+        </article>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ==================== 05. КАРЬЕРА И ОТНОШЕНИЯ В КОЛЛЕКТИВЕ — 6 ==================== -->
+  <section class="cat-group cat-group--rows" id="karera-i-otnosheniya" aria-labelledby="cat-karera-title">
+    <div class="container">
+      <div class="cat-group__head">
+        <h2 class="cat-group__title" id="cat-karera-title">Карьера и отношения в коллективе</h2>
+        <span class="cat-group__count">6 программ</span>
+      </div>
+
+      <div class="cat-group__body">
+        <span class="cat-group__rail" aria-hidden="true"></span>
+
+        <article class="cat-item" id="karernyy-navigator">
+          <h3 class="cat-item__title">Карьерный навигатор</h3>
+
+          <div class="cat-item__card">
+            <span class="cat-item__frame" aria-hidden="true"></span>
+            <ul class="cat-item__tags">
+              <li class="cat-tag">Развитие</li>
+              <li class="cat-tag">Наставничество</li>
+              <li class="cat-tag">Кадровый резерв</li>
+            </ul>
+
+            <div class="cat-item__body">
+              <p class="cat-item__desc">Программа внутрикорпоративного карьерного роста. Индивидуальные планы развития, обучение, наставничество, стажировки, участие в проектах, внутренние конкурсы на замещение вакансий. Прозрачные перспективы роста.</p>
+              <p class="cat-item__for"><span class="cat-item__for-label">Для кого</span><span class="cat-item__for-text">Рабочие и специалисты, которых важно удержать и вырастить</span></p>
+            </div>
+          </div>
+        </article>
+
+        <article class="cat-item" id="professionalnyy-perehod">
+          <h3 class="cat-item__title">Профессиональный переход</h3>
+
+          <div class="cat-item__card">
+            <span class="cat-item__frame" aria-hidden="true"></span>
+            <ul class="cat-item__tags">
+              <li class="cat-tag">ТК РФ</li>
+              <li class="cat-tag">Трудоустройство</li>
+              <li class="cat-tag">Психология</li>
+            </ul>
+
+            <div class="cat-item__body">
+              <p class="cat-item__desc">Программа для сотрудников, попадающих под сокращение численности или штата. Юридические консультации, помощь в трудоустройстве, психологическая поддержка, информация о выплатах и льготах. Мягкий и достойный выход.</p>
+              <p class="cat-item__for"><span class="cat-item__for-label">Для кого</span><span class="cat-item__for-text">Компании в период реструктуризации и оптимизации</span></p>
+            </div>
+          </div>
+        </article>
+
+        <article class="cat-item" id="konstruktivnye-otnosheniya-s-rukovoditelem">
+          <h3 class="cat-item__title">Конструктивные отношения с руководителем</h3>
+
+          <div class="cat-item__card">
+            <span class="cat-item__frame" aria-hidden="true"></span>
+            <ul class="cat-item__tags">
+              <li class="cat-tag">Коммуникации</li>
+              <li class="cat-tag">Коучинг</li>
+            </ul>
+
+            <div class="cat-item__body">
+              <p class="cat-item__desc">Программа для сотрудников, испытывающих сложности во взаимодействии с непосредственным руководителем. Коучинг, медиация, психологическая поддержка.</p>
+              <p class="cat-item__for"><span class="cat-item__for-label">Для кого</span><span class="cat-item__for-text">Сотрудники и линейные руководители</span></p>
+            </div>
+          </div>
+        </article>
+
+        <article class="cat-item" id="konstruktivnoe-vzaimodeystvie-s-rukovodstvom">
+          <h3 class="cat-item__title">Конструктивное взаимодействие с руководством компании</h3>
+
+          <div class="cat-item__card">
+            <span class="cat-item__frame" aria-hidden="true"></span>
+            <ul class="cat-item__tags">
+              <li class="cat-tag">Коммуникации</li>
+              <li class="cat-tag">Развитие</li>
+            </ul>
+
+            <div class="cat-item__body">
+              <p class="cat-item__desc">Помощь во выстраивании диалога с топ-менеджментом: подготовка к встречам, навыки аргументации, работа с возражениями, уверенное поведение.</p>
+              <p class="cat-item__for"><span class="cat-item__for-label">Для кого</span><span class="cat-item__for-text">Руководители среднего звена</span></p>
+            </div>
+          </div>
+        </article>
+
+        <article class="cat-item" id="effektivnoe-upravlenie-podchinennym">
+          <h3 class="cat-item__title">Эффективное управление подчинённым сотрудником</h3>
+
+          <div class="cat-item__card">
+            <span class="cat-item__frame" aria-hidden="true"></span>
+            <ul class="cat-item__tags">
+              <li class="cat-tag">Менеджмент</li>
+              <li class="cat-tag">Обучение</li>
+            </ul>
+
+            <div class="cat-item__body">
+              <p class="cat-item__desc">Программа для руководителей: навыки постановки задач, обратной связи, мотивации, разбора конфликтов и работы с низкой производительностью.</p>
+              <p class="cat-item__for"><span class="cat-item__for-label">Для кого</span><span class="cat-item__for-text">Начальники цехов, участков, бригадиры</span></p>
+            </div>
+          </div>
+        </article>
+
+        <article class="cat-item" id="konstruktivnoe-vzaimodeystvie-v-kollektive">
+          <h3 class="cat-item__title">Конструктивное взаимодействие в коллективе</h3>
+
+          <div class="cat-item__card">
+            <span class="cat-item__frame" aria-hidden="true"></span>
+            <ul class="cat-item__tags">
+              <li class="cat-tag">Команда</li>
+              <li class="cat-tag">Медиация</li>
+            </ul>
+
+            <div class="cat-item__body">
+              <p class="cat-item__desc">Программа по улучшению психологического климата в бригадах и сменах. Медиация конфликтов, командообразование, работа с токсичным поведением.</p>
+              <p class="cat-item__for"><span class="cat-item__for-label">Для кого</span><span class="cat-item__for-text">Производственные коллективы и смены</span></p>
+            </div>
+          </div>
+        </article>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ==================== КОНТАКТЫ ==================== -->
+  <section class="contact" id="contact" aria-labelledby="contact-title">
+    <div class="container contact__body">
+
+      <div class="contact__intro">
+        <h2 class="contact__title" id="contact-title">Подберём программы под задачи вашего предприятия</h2>
+        <p class="contact__text">Расскажите о кадровой ситуации и задачах предприятия. Обсудим, какие направления поддержки подходят вашим сотрудникам.</p>
+      </div>
+
+      <ul class="contact__list">
+
+        <li class="contact__item">
+          <span class="contact__label">Телефон</span>
+          <a class="btn btn--alu contact__value contact__value--tel" href="tel:+79086888268">8 (908) 688-82-68</a>
+        </li>
+
+        <li class="contact__item">
+          <span class="contact__label">Почта</span>
+          <a class="contact__value contact__value--link" href="mailto:hr@eapcare.ru">hr@eapcare.ru</a>
+        </li>
+
+        <li class="contact__item">
+          <span class="contact__label">Telegram</span>
+          <a class="contact__value contact__value--link" href="https://t.me/eapcare_hr" target="_blank" rel="noopener noreferrer" aria-describedby="contact-tg-note">@eapcare_hr</a>
+          <span class="contact__note" id="contact-tg-note">Откроется в новой вкладке</span>
+        </li>
+
+      </ul>
+
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container site-footer__inner">
+    <div class="site-footer__brand">
+      <p class="site-footer__name">EAP Care</p>
+      <p class="site-footer__copy">© 2026 EAP Care. Программы поддержки сотрудников для машиностроительных компаний.</p>
+    </div>
+    <a class="site-footer__top" href="#top">Наверх</a>
+  </div>
+</footer>
+
+<button class="to-top" type="button" aria-label="Вернуться наверх" hidden>
+  <span class="to-top__arrow" aria-hidden="true"></span>
+</button>
+
+<!-- ==================== ЗАЯВКА ==================== -->
+<!-- Один экземпляр формы на документ, общий для всех триггеров
+     [data-open-request]. Открывается только по действию пользователя.
+     Онлайн-отправка пока не подключена: форма проверяет поля и
+     честно сообщает об этом, не показывая «Заявка отправлена». -->
+<dialog class="request" id="request-dialog" aria-labelledby="request-title">
+  <div class="request__head">
+    <h2 class="request__title" id="request-title" tabindex="-1">Подберём программы под задачи вашего предприятия</h2>
+    <button class="request__close" type="button" data-close-request aria-label="Закрыть заявку"></button>
+  </div>
+
+  <div class="request__body">
+    <p class="request__lead">Оставьте контактные данные и укажите, какие направления поддержки вас интересуют</p>
+    <p class="request__demo">Демонстрационная форма. Онлайн-отправка пока не подключена.</p>
+
+    <form class="request__form" id="request-form" novalidate>
+      <div class="request__field">
+        <label class="request__label" for="request-name">Имя *</label>
+        <input class="request__input" id="request-name" name="name" type="text" placeholder="Как к вам обращаться" maxlength="100" autocomplete="name" required aria-describedby="request-error-name">
+        <p class="request__error" id="request-error-name"></p>
+      </div>
+      <div class="request__field">
+        <label class="request__label" for="request-company">Компания *</label>
+        <input class="request__input" id="request-company" name="company" type="text" placeholder="Название предприятия" maxlength="150" autocomplete="organization" required aria-describedby="request-error-company">
+        <p class="request__error" id="request-error-company"></p>
+      </div>
+      <div class="request__field">
+        <label class="request__label" for="request-phone">Телефон *</label>
+        <input class="request__input" id="request-phone" name="phone" type="tel" placeholder="+7 (___) ___-__-__" maxlength="40" autocomplete="tel" required aria-describedby="request-error-phone">
+        <p class="request__error" id="request-error-phone"></p>
+      </div>
+      <div class="request__field">
+        <label class="request__label" for="request-email">Рабочий email</label>
+        <input class="request__input" id="request-email" name="email" type="email" placeholder="you@company.ru" maxlength="120" autocomplete="email" aria-describedby="request-error-email">
+        <p class="request__error" id="request-error-email"></p>
+      </div>
+      <div class="request__field request__field--wide">
+        <label class="request__label" for="request-size">Численность сотрудников</label>
+        <select class="request__select" id="request-size" name="size" aria-describedby="request-error-size">
+          <option value="">Выберите</option>
+          <option value="До 500 человек">До 500 человек</option>
+          <option value="500 – 2 000 человек">500 – 2 000 человек</option>
+          <option value="2 000 – 10 000 человек">2 000 – 10 000 человек</option>
+          <option value="Более 10 000 человек">Более 10 000 человек</option>
+        </select>
+        <p class="request__error" id="request-error-size"></p>
+      </div>
+      <div class="request__field request__field--wide">
+        <label class="request__label" for="request-comment">Какие программы интересуют</label>
+        <textarea class="request__textarea" id="request-comment" name="comment" placeholder="Например: создание семьи, медицинский консьерж, профессиональный переход" maxlength="1500" aria-describedby="request-error-comment"></textarea>
+        <p class="request__error" id="request-error-comment"></p>
+      </div>
+
+      <div class="request__actions">
+        <button class="btn request__submit" type="submit">Отправить заявку</button>
+        <p class="request__required">* — обязательное поле</p>
+      </div>
+
+      <p class="request__status" role="status" hidden></p>
+    </form>
+
+    <p class="request__note">Данные не сохраняются и никуда не отправляются, пока онлайн-отправка не подключена.</p>
+  </div>
+</dialog>
+
+<script src="assets/js/main.js" defer></script>
+</body>
+</html>
